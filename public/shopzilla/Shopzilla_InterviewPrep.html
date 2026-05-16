@@ -870,7 +870,7 @@
 <nav class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="shop">SHOP<span>ZILLA</span></div>
-    <div class="subtitle">Interview Reference Doc</div>
+    <div class="subtitle">Technical Reference Doc</div>
   </div>
 
   <div class="nav-section">
@@ -930,9 +930,9 @@
   </div>
 
   <div class="nav-section">
-    <div class="nav-section-label">Interview</div>
+    <div class="nav-section-label">Q&amp;A</div>
     <a class="nav-item" onclick="showSection('interview')">
-      <span class="icon">🎯</span> Key Q&A
+      <span class="icon">🎯</span> Key Q&amp;A
     </a>
   </div>
 </nav>
@@ -948,7 +948,7 @@
   <div class="hero">
     <div class="hero-badge">📦 MERN Stack · Internship Project · GITAM University</div>
     <h1 class="hero-title">Shop<span>Zilla</span><br>Technical Deep Dive</h1>
-    <p class="hero-desc">A comprehensive, submodule-by-submodule reference for interviews. Every layer, every concept, every command — explained from scratch.</p>
+    <p class="hero-desc">A comprehensive, submodule-by-submodule technical deep dive. Every layer, every concept, every command — explained from scratch.</p>
     <div class="hero-tags">
       <span class="tag mongo">MongoDB Atlas</span>
       <span class="tag express">Express.js</span>
@@ -1122,7 +1122,7 @@
       </div>
 
       <div class="callout blue">
-        <div class="callout-label">Interview Key Point</div>
+        <div class="callout-label">Key Point</div>
         <p>CSR (Client-Side Rendering) means the server sends an empty HTML shell + JS bundle. React renders the content in the browser. This is different from SSR (Server-Side Rendering, like Next.js) where the server sends fully-rendered HTML. CSR is faster at navigation but slower at first meaningful paint for SEO purposes.</p>
       </div>
     </section>
@@ -1223,7 +1223,7 @@ module.exports = connectDB;</pre>
       </div>
 
       <div class="callout green">
-        <div class="callout-label">Why .lean() matters — Interview Favourite</div>
+        <div class="callout-label">Why .lean() matters</div>
         <p>By default, Mongoose wraps query results in Mongoose Document objects which have methods like <code>.save()</code>, <code>.populate()</code>, getters, setters, etc. These add memory and CPU overhead. <code>.lean()</code> tells Mongoose to skip this wrapping and return plain JavaScript objects directly — making reads significantly faster, especially for large collections. Use it when you only need to read and send data, not modify it.</p>
       </div>
     </section>
@@ -1310,7 +1310,7 @@ module.exports = mongoose.<span class="fn">model</span>(<span class="str">'Produ
       </div>
 
       <div class="callout amber">
-        <div class="callout-label">Interview Point — Referencing vs Embedding</div>
+        <div class="callout-label">Referencing vs Embedding</div>
         <p>In MongoDB, you can either <strong>embed</strong> related data (put it inside the same document) or <strong>reference</strong> it using an ObjectId. Shopzilla references User in Order using <code>ObjectId, ref: 'User'</code>. This allows using <code>.populate('user')</code> to automatically fetch the user details when querying orders — similar to a SQL JOIN.</p>
       </div>
     </section>
@@ -1782,7 +1782,7 @@ cache.<span class="fn">flushAll</span>();</pre>
       </div>
 
       <div class="callout amber">
-        <div class="callout-label">NodeCache vs Redis — Interview Question</div>
+        <div class="callout-label">NodeCache vs Redis</div>
         <p>NodeCache is <strong>in-process</strong> — it lives in the same Node.js memory. This means: (1) it resets when the server restarts, (2) it can't be shared across multiple server instances (can't scale horizontally). <strong>Redis</strong> is a separate in-memory data store accessed over a network — it persists across restarts, can be shared by multiple server instances, and supports advanced data structures. For production at scale, Redis is the right choice. NodeCache is appropriate for simple single-instance deployments like Shopzilla on Render.</p>
       </div>
     </section>
@@ -1919,7 +1919,7 @@ cache.<span class="fn">flushAll</span>();</pre>
       </div>
 
       <div class="callout blue">
-        <div class="callout-label">Interview Point — Context vs Redux</div>
+        <div class="callout-label">Context API vs Redux</div>
         <p>Context API is React's built-in global state solution — great for small-to-medium apps like Shopzilla. Redux is an external library offering a more structured flux pattern with actions, reducers, and a single store — better for very large apps with complex state. Context + useReducer can approximate Redux patterns without the extra dependency.</p>
       </div>
     </section>
@@ -2049,9 +2049,9 @@ git push origin main    <span class="cm"># Triggers auto-deploy on both Netlify 
     <section class="section" id="interview">
       <div class="section-header">
         <div class="section-number">13</div>
-        <h2 class="section-title">Key Interview <span>Q&amp;A</span></h2>
+        <h2 class="section-title">Key <span>Q&amp;A</span></h2>
       </div>
-      <p class="section-intro">The most likely interview questions on this project, with crisp answers you can give confidently.</p>
+      <p class="section-intro">Common questions about this project with detailed technical answers.</p>
 
       <div class="info-block" style="margin-bottom:16px">
         <h4>🔴 "Explain your project in 2 minutes."</h4>
