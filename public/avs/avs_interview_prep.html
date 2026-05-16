@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AVS: Data Poisoning Threats — Interview Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #10141c;
+    --surface2: #161c28;
+    --border: #1e2a3d;
+    --accent: #00e5a0;
+    --accent2: #ff6b35;
+    --accent3: #7c6fcd;
+    --accent4: #ffd166;
+    --text: #e8edf5;
+    --muted: #7a8ba0;
+    --red: #ff4757;
+    --blue: #4fc3f7;
+    --teal: #00bfa5;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  nav {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 2rem 0;
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+  nav .nav-brand {
+    padding: 0 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+  nav .nav-brand .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  nav .nav-brand h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.3;
+    margin-top: 0.3rem;
+  }
+  nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 1.25rem;
+    text-decoration: none;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  nav a:hover, nav a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    background: rgba(0,229,160,0.05);
+  }
+  nav a .step-num {
+    background: var(--border);
+    color: var(--muted);
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    flex-shrink: 0;
+  }
+  nav a:hover .step-num { background: rgba(0,229,160,0.2); color: var(--accent); }
+  nav .nav-section {
+    padding: 1rem 1.25rem 0.3rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--border);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+  }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    margin-left: 220px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #0a0c10 0%, #0f1929 40%, #0a1520 100%);
+    padding: 5rem 4rem 4rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(0,229,160,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .hero .tag::before {
+    content: '';
+    width: 30px; height: 1px;
+    background: var(--accent);
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    max-width: 700px;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.8;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .hero-meta .metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    text-align: center;
+  }
+  .hero-meta .metric .val {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+  .hero-meta .metric .lbl {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 3.5rem 4rem;
+    border-bottom: 1px solid var(--border);
+    animation: fadeIn 0.5s ease both;
+  }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .step-badge {
+    background: var(--border);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+    margin-top: 0.6rem;
+    flex-shrink: 0;
+  }
+  .step-badge.attack { border-color: var(--red); color: var(--red); }
+  .step-badge.defense { border-color: var(--teal); color: var(--teal); }
+  .step-badge.eval { border-color: var(--accent4); color: var(--accent4); }
+  .step-badge.viz { border-color: var(--accent3); color: var(--accent3); }
+
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text);
+  }
+  h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.75rem;
+    margin-top: 2rem;
+  }
+  h4 {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  p { margin-bottom: 1rem; color: #c5cdd8; }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+  }
+  .card-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .card-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card .card-icon {
+    font-size: 1.8rem;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  .card h4 { margin-top: 0; }
+  .card p { font-size: 0.95rem; margin-bottom: 0; }
+  .card.attack { border-left: 3px solid var(--red); }
+  .card.attack:hover { border-color: var(--red); }
+  .card.defense { border-left: 3px solid var(--teal); }
+  .card.defense:hover { border-color: var(--teal); }
+  .card.model { border-left: 3px solid var(--accent3); }
+  .card.model:hover { border-color: var(--accent3); }
+
+  /* ── ATTACK / DEFENSE BLOCKS ── */
+  .detail-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 1.5rem;
+  }
+  .detail-block + .detail-block { margin-top: 1rem; }
+  .detail-block.attack-block { border-left: 4px solid var(--red); }
+  .detail-block.defense-block { border-left: 4px solid var(--teal); }
+  .detail-block .block-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  .block-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    letter-spacing: 0.1em;
+  }
+  .block-tag.training { background: rgba(255,71,87,0.15); color: var(--red); }
+  .block-tag.inference { background: rgba(255,107,53,0.15); color: var(--accent2); }
+  .block-tag.defense { background: rgba(0,191,165,0.15); color: var(--teal); }
+
+  /* ── CODE SNIPPETS ── */
+  .code-box {
+    background: #060810;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin: 1rem 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: #a8d8b9;
+    overflow-x: auto;
+    line-height: 1.7;
+    white-space: pre;
+  }
+  .code-box .comment { color: var(--muted); }
+  .code-box .keyword { color: var(--accent); }
+  .code-box .string { color: var(--accent4); }
+
+  /* ── PIPELINE FLOW ── */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 1.5rem;
+  }
+  .pipeline-step {
+    display: flex;
+    gap: 1.5rem;
+    position: relative;
+  }
+  .pipeline-step::before {
+    content: '';
+    position: absolute;
+    left: 23px; top: 46px;
+    bottom: -20px;
+    width: 2px;
+    background: var(--border);
+  }
+  .pipeline-step:last-child::before { display: none; }
+  .pipe-circle {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    z-index: 1;
+    background: var(--bg);
+    transition: all 0.2s;
+  }
+  .pipeline-step:hover .pipe-circle {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,160,0.08);
+  }
+  .pipe-content {
+    padding: 0.75rem 0 2rem;
+    flex: 1;
+  }
+  .pipe-content h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    margin: 0 0 0.3rem;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .pipe-content p { font-size: 0.92rem; margin: 0; color: var(--muted); }
+  .pipe-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.6rem;
+  }
+  .pill {
+    background: var(--border);
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 3px;
+  }
+  .pill.accent { background: rgba(0,229,160,0.1); color: var(--accent); }
+  .pill.red { background: rgba(255,71,87,0.1); color: var(--red); }
+  .pill.teal { background: rgba(0,191,165,0.1); color: var(--teal); }
+  .pill.purple { background: rgba(124,111,205,0.1); color: var(--accent3); }
+  .pill.yellow { background: rgba(255,209,102,0.1); color: var(--accent4); }
+
+  /* ── METRICS TABLE ── */
+  .metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+  }
+  .metrics-table thead tr {
+    background: var(--surface2);
+    border-bottom: 2px solid var(--border);
+  }
+  .metrics-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0.9rem 1rem;
+    text-align: left;
+  }
+  .metrics-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: #c5cdd8;
+  }
+  .metrics-table tr:hover td { background: var(--surface2); }
+  .metrics-table .high { color: var(--red); font-weight: 700; font-family: 'Space Mono', monospace; }
+  .metrics-table .detect { color: var(--accent); font-family: 'Space Mono', monospace; }
+  .metrics-table .def { color: var(--teal); font-size: 0.88rem; }
+
+  /* ── COMPARISON ── */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+  }
+  .compare-card.left { border-top: 3px solid var(--red); }
+  .compare-card.right { border-top: 3px solid var(--teal); }
+  .compare-card .ct {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .compare-card.left .ct { color: var(--red); }
+  .compare-card.right .ct { color: var(--teal); }
+  .compare-card ul { list-style: none; }
+  .compare-card ul li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.92rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    color: #c5cdd8;
+  }
+  .compare-card ul li::before { content: '→'; color: var(--muted); flex-shrink: 0; }
+  .compare-card ul li:last-child { border: none; }
+
+  /* ── FORMULA BOX ── */
+  .formula {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--accent3);
+    margin: 1rem 0;
+  }
+  .formula .label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent4);
+    border-radius: 6px;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    color: #c5cdd8;
+  }
+  .callout strong { color: var(--accent4); }
+  .callout.danger { border-left-color: var(--red); }
+  .callout.danger strong { color: var(--red); }
+  .callout.info { border-left-color: var(--blue); }
+  .callout.info strong { color: var(--blue); }
+
+  /* ── RESULT BARS ── */
+  .bar-row { margin: 1.2rem 0; }
+  .bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+  .bar-label .val { color: var(--text); }
+  .bar-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s ease;
+  }
+
+  /* ── DATASET CARDS ── */
+  .dataset-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .dataset-card .ds-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .dataset-card .ds-desc { font-size: 0.93rem; color: var(--muted); line-height: 1.6; }
+  .dataset-card .ds-sensors { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* ── COLLAPSIBLE ── */
+  details summary {
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: border-color 0.2s;
+  }
+  details summary:hover { border-color: var(--accent); }
+  details[open] summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; border-bottom-color: transparent; }
+  details .details-body {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── BACK TO TOP ── */
+  .back-to-top {
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    width: 40px; height: 40px;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    z-index: 200;
+  }
+  .back-to-top:hover { opacity: 1; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    nav { display: none; }
+    main { margin-left: 0; }
+    section { padding: 2.5rem 1.5rem; }
+    .hero { padding: 3rem 1.5rem; }
+    .hero h1 { font-size: 2rem; }
+    .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+    .card-grid.cols-2 { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ SIDEBAR ═══════════════════════════════ -->
+<nav>
+  <div class="nav-brand">
+    <div class="logo">AVS // GITAM 2026</div>
+    <h2>Interview Prep Guide</h2>
+  </div>
+  <div class="nav-section">Overview</div>
+  <a href="#hero"><span class="step-num">★</span>Project Overview</a>
+  <a href="#pipeline"><span class="step-num">↓</span>Full Pipeline</a>
+  <div class="nav-section">Pipeline Steps</div>
+  <a href="#step1"><span class="step-num">1</span>Data Loading</a>
+  <a href="#step2"><span class="step-num">2</span>Model Design</a>
+  <a href="#step3"><span class="step-num">3</span>Training Attacks</a>
+  <a href="#step4"><span class="step-num">4</span>Inference Attacks</a>
+  <a href="#step5"><span class="step-num">5</span>Poisoned Training</a>
+  <a href="#step6"><span class="step-num">6</span>Attack Evaluation</a>
+  <a href="#step7"><span class="step-num">7</span>Defense Systems</a>
+  <a href="#step8"><span class="step-num">8</span>Defense Evaluation</a>
+  <a href="#step9"><span class="step-num">9</span>Visualization</a>
+  <a href="#step10"><span class="step-num">10</span>CARLA Simulation</a>
+  <div class="nav-section">Summary</div>
+  <a href="#results"><span class="step-num">✓</span>Results & Metrics</a>
+  <a href="#techstack"><span class="step-num">⚙</span>Tech Stack</a>
+</nav>
+
+<!-- ═══════════════════════════════ MAIN ═══════════════════════════════ -->
+<main>
+
+<!-- ── HERO ── -->
+<div class="hero" id="hero">
+  <div class="tag">Capstone Project · GITAM University · 2026</div>
+  <h1>Autonomous Vehicle Security: <span>Data Poisoning Threats</span> to Self-Driving Systems</h1>
+  <p>A comprehensive end-to-end security research project that simulates real-world adversarial attacks on autonomous vehicle perception systems and builds a multi-layered defense framework to detect, mitigate, and validate system resilience — validated in CARLA simulation.</p>
+  <div class="hero-meta">
+    <div class="metric"><span class="val">80%</span><span class="lbl">Detection Rate</span></div>
+    <div class="metric"><span class="val">6.7%</span><span class="lbl">Safety Violations</span></div>
+    <div class="metric"><span class="val">7 ms</span><span class="lbl">Latency Overhead</span></div>
+    <div class="metric"><span class="val">7</span><span class="lbl">Attack Types</span></div>
+    <div class="metric"><span class="val">88%</span><span class="lbl">Safety Improvement</span></div>
+  </div>
+</div>
+
+<!-- ── FULL PIPELINE ── -->
+<section id="pipeline">
+  <div class="section-header">
+    <div>
+      <h2>Complete System Pipeline</h2>
+      <p style="margin-top:0.5rem; color:var(--muted);">An 11-step research pipeline from raw data ingestion to real-time decision making in a self-driving simulation environment.</p>
+    </div>
+  </div>
+
+  <div class="pipeline">
+    <div class="pipeline-step">
+      <div class="pipe-circle" style="border-color:var(--accent);color:var(--accent)">01</div>
+      <div class="pipe-content">
+        <h4>Data Loading &amp; Preprocessing</h4>
+        <p>Ingest GTSRB, KITTI, and nuScenes datasets. Apply resizing, normalization, tensor conversion, and augmentation.</p>
+        <div class="pipe-tech"><span class="pill accent">PyTorch</span><span class="pill">torchvision</span><span class="pill">OpenCV</span><span class="pill">NumPy</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle">02</div>
+      <div class="pipe-content">
+        <h4>Baseline Model Training</h4>
+        <p>Train clean CNN for classification and YOLOv8 for object detection to establish a pre-attack performance baseline.</p>
+        <div class="pipe-tech"><span class="pill accent">PyTorch</span><span class="pill">YOLOv8</span><span class="pill">ResNet-50</span><span class="pill">DeepLabv3+</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle" style="border-color:var(--red);color:var(--red)">03</div>
+      <div class="pipe-content">
+        <h4>Attack Injection — Training Time</h4>
+        <p>Corrupt the training data using label flipping, backdoor trigger injection, and clean-label poisoning techniques.</p>
+        <div class="pipe-tech"><span class="pill red">Label Flipping</span><span class="pill red">Backdoor</span><span class="pill red">Clean-Label</span><span class="pill">NumPy</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle" style="border-color:var(--accent2);color:var(--accent2)">04</div>
+      <div class="pipe-content">
+        <h4>Attack Injection — Inference Time</h4>
+        <p>Simulate runtime attacks: adversarial patches on camera feeds, GPS coordinate spoofing, LiDAR point injection, and map data corruption.</p>
+        <div class="pipe-tech"><span class="pill red">Adv. Patch</span><span class="pill red">GPS Spoof</span><span class="pill red">LiDAR Spoof</span><span class="pill red">Map Poison</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle">05</div>
+      <div class="pipe-content">
+        <h4>Poisoned Model Training</h4>
+        <p>Retrain the same model architecture on the poisoned dataset to embed malicious behaviour into the model's learned weights.</p>
+        <div class="pipe-tech"><span class="pill accent">PyTorch</span><span class="pill">CUDA</span><span class="pill">DataLoader</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle" style="border-color:var(--accent4);color:var(--accent4)">06</div>
+      <div class="pipe-content">
+        <h4>Attack Evaluation (ASR vs Accuracy)</h4>
+        <p>Measure the Attack Success Rate (ASR) with triggered inputs and compare clean vs. poisoned accuracy to assess attack severity.</p>
+        <div class="pipe-tech"><span class="pill yellow">ASR</span><span class="pill yellow">Accuracy Drop</span><span class="pill yellow">mAP Drop</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle" style="border-color:var(--teal);color:var(--teal)">07</div>
+      <div class="pipe-content">
+        <h4>Defense Implementation</h4>
+        <p>Apply multi-layered defenses: Isolation Forest / DBSCAN for anomaly detection, STRIP + Neural Cleanse + ULP for backdoor detection, PGD / TRADES adversarial training, GPS-IDS, and Median Filtering.</p>
+        <div class="pipe-tech"><span class="pill teal">Isolation Forest</span><span class="pill teal">STRIP</span><span class="pill teal">PGD/TRADES</span><span class="pill teal">GPS-IDS</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle" style="border-color:var(--teal);color:var(--teal)">08</div>
+      <div class="pipe-content">
+        <h4>Defense Evaluation</h4>
+        <p>Compute Precision, Recall, F1-Score, and False Positive Rate across all defense mechanisms to quantify their effectiveness.</p>
+        <div class="pipe-tech"><span class="pill teal">Precision</span><span class="pill teal">Recall</span><span class="pill teal">F1-Score</span><span class="pill teal">FPR</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle" style="border-color:var(--accent3);color:var(--accent3)">09</div>
+      <div class="pipe-content">
+        <h4>Visual Analysis — Grad-CAM &amp; t-SNE</h4>
+        <p>Interpret model behaviour using gradient-based attention heatmaps (Grad-CAM) and high-dimensional feature clustering (t-SNE).</p>
+        <div class="pipe-tech"><span class="pill purple">Grad-CAM</span><span class="pill purple">t-SNE</span><span class="pill purple">matplotlib</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle">10</div>
+      <div class="pipe-content">
+        <h4>CARLA Simulator Validation</h4>
+        <p>Inject real-time attacks into sensor streams inside a realistic driving simulator and validate defence responses in live scenarios.</p>
+        <div class="pipe-tech"><span class="pill">CARLA</span><span class="pill">Python API</span><span class="pill">OpenCV</span></div>
+      </div>
+    </div>
+    <div class="pipeline-step">
+      <div class="pipe-circle" style="border-color:var(--accent);color:var(--accent)">11</div>
+      <div class="pipe-content">
+        <h4>Real-Time Decision System</h4>
+        <p>Decision logic: if an attack is detected → trigger fail-safe actions (emergency braking, disable autopilot). Otherwise → continue normal driving.</p>
+        <div class="pipe-tech"><span class="pill accent">CARLA Control API</span><span class="pill accent">Python Logic</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STEP 1 ── -->
+<section id="step1">
+  <div class="section-header">
+    <span class="step-badge">STEP 01</span>
+    <div>
+      <h2>Data Loading &amp; Preprocessing</h2>
+      <p style="margin-top:0.4rem;">Why the raw data pipeline matters — preparing structured, normalized, and augmented inputs for the deep learning models.</p>
+    </div>
+  </div>
+
+  <p>Autonomous vehicles depend on diverse sensor data captured in wildly varying real-world conditions — different weather, lighting, road geometries, and object angles. Feeding inconsistent raw images directly into a neural network would make training unstable and the learned model brittle. The preprocessing pipeline solves this by standardising every input before the model ever sees it.</p>
+
+  <h3>Datasets Used</h3>
+  <div class="card-grid cols-3">
+    <div class="dataset-card">
+      <div class="ds-name">GTSRB</div>
+      <div class="ds-desc">German Traffic Sign Recognition Benchmark — 43 classes of traffic signs used for the classification task. Provides labelled images of speed limits, stop signs, warnings, and more. This is the primary dataset for the CNN classifier.</div>
+      <div class="ds-sensors"><span class="pill accent">43 Classes</span><span class="pill">RGB Images</span><span class="pill">Classification</span></div>
+    </div>
+    <div class="dataset-card">
+      <div class="ds-name">KITTI</div>
+      <div class="ds-desc">Multi-sensor driving dataset from Karlsruhe, Germany. Contains RGB camera images, LiDAR 3D point clouds, GPS/IMU data, and fine-grained annotations for cars, pedestrians, and cyclists with both 2D and 3D bounding boxes. Used for object detection with YOLOv8.</div>
+      <div class="ds-sensors"><span class="pill">RGB Camera</span><span class="pill">LiDAR</span><span class="pill">GPS+IMU</span><span class="pill">2D/3D BBoxes</span></div>
+    </div>
+    <div class="dataset-card">
+      <div class="ds-name">nuScenes</div>
+      <div class="ds-desc">Full 360° perception dataset from Motional with 6 cameras, LiDAR, Radar, and GPS/IMU. Contains multi-frame scene sequences with 3D bounding boxes and tracking annotations. Enables multi-sensor fusion experiments and temporal object tracking across frames.</div>
+      <div class="ds-sensors"><span class="pill">6× Cameras</span><span class="pill">LiDAR</span><span class="pill">Radar</span><span class="pill">360° Perception</span></div>
+    </div>
+  </div>
+
+  <h3>Why Multiple Datasets?</h3>
+  <p>Using GTSRB alone would train a model that recognises signs but cannot detect obstacles. KITTI adds depth-aware 3D object detection. nuScenes adds surround-view multi-sensor fusion. Together they cover the full spectrum of AV perception tasks — classification, detection, and localisation — and force the model to generalise across different environments, preventing overfitting to a single domain.</p>
+
+  <h3>Preprocessing Steps Explained</h3>
+  <div class="card-grid cols-2">
+    <div class="card">
+      <h4>① Resize</h4>
+      <p>Every image is resized to a fixed resolution (e.g., 32×32 for GTSRB, 224×224 for ResNet). CNNs require uniform spatial dimensions across the entire batch — you cannot compute matrix multiplications if one image is 480×640 and the next is 1080×1920.</p>
+    </div>
+    <div class="card">
+      <h4>② Normalisation</h4>
+      <p>Raw pixel values range from 0–255. Dividing by 255 maps them to 0–1, or further standardising using ImageNet mean/std values stabilises gradient descent. Without normalisation, large pixel values cause exploding gradients and slow, unstable convergence during backpropagation.</p>
+    </div>
+    <div class="card">
+      <h4>③ Tensor Conversion</h4>
+      <p>PyTorch models operate on tensors, not NumPy arrays or PIL images. Conversion also changes the channel ordering from the standard image format [H, W, C] (Height × Width × Channels) to PyTorch's expected [C, H, W] format, which is required for efficient GPU batch processing.</p>
+    </div>
+    <div class="card">
+      <h4>④ Data Augmentation</h4>
+      <p>Random rotations, horizontal flips, brightness jitter, and Gaussian noise are applied on-the-fly. This artificially expands the effective training set, teaches the model to be invariant to viewpoint and lighting changes, and is the single most effective technique for reducing overfitting in vision models.</p>
+    </div>
+  </div>
+
+  <h3>What is a Tensor and Why Use It?</h3>
+  <p>A tensor is a multi-dimensional array — essentially a generalisation of vectors and matrices into arbitrary dimensions. A single colour image becomes a rank-3 tensor of shape [3, H, W]. A mini-batch of 32 images becomes a rank-4 tensor [32, 3, H, W]. PyTorch's GPU kernels are optimised to run tensor operations extremely fast via parallelism, enabling the matrix multiplications that underpin every layer of a neural network.</p>
+
+  <div class="callout info">
+    <strong>Key Interview Point:</strong> The DataLoader is not just a file reader — it performs <em>multi-worker parallel loading</em>, <em>batching</em>, and <em>in-memory shuffling</em> so that data is always ready on the GPU before the previous batch has finished processing. This prevents the GPU from sitting idle waiting for CPU-bound I/O.
+  </div>
+</section>
+
+<!-- ── STEP 2 ── -->
+<section id="step2">
+  <div class="section-header">
+    <span class="step-badge">STEP 02</span>
+    <div>
+      <h2>Model Design &amp; Baseline Training</h2>
+      <p style="margin-top:0.4rem;">Building the perception backbone — CNN, YOLOv8, DeepLabv3+, and ResNet-50, and what each one uniquely contributes.</p>
+    </div>
+  </div>
+
+  <p>No single neural architecture can handle all of AV perception. Classification answers "what is this object?" Detection answers "where is it and what is it?" Segmentation answers "which pixel belongs to which category?" Feature extraction provides the rich representations that all other tasks build upon. This project uses four specialised models — each selected for a specific sub-task.</p>
+
+  <div class="card-grid cols-2">
+    <div class="card model">
+      <span class="card-icon">🧠</span>
+      <h4>CNN — Traffic Sign Classifier</h4>
+      <p><strong>Task:</strong> Multi-class classification across 43 GTSRB categories. The architecture uses three convolutional blocks (each with Conv → BatchNorm → ReLU → MaxPool) to progressively extract edges, shapes, and symbolic patterns. The final fully-connected layers reduce the feature volume to a 43-class softmax prediction. Achieves ~96% clean accuracy as the pre-attack baseline.</p>
+    </div>
+    <div class="card model">
+      <span class="card-icon">🎯</span>
+      <h4>YOLOv8 — Real-Time Object Detection</h4>
+      <p><strong>Task:</strong> Detect and localise cars, pedestrians, and cyclists in a single forward pass. YOLO (You Only Look Once) divides the image into a grid and predicts bounding boxes and class probabilities simultaneously. This makes it extremely fast — capable of running at 30+ FPS, a hard requirement for real-time AV decision-making. Output format: (x, y, width, height, confidence, class).</p>
+    </div>
+    <div class="card model">
+      <span class="card-icon">🗺️</span>
+      <h4>DeepLabv3+ — Semantic Segmentation</h4>
+      <p><strong>Task:</strong> Assign a semantic class label to every single pixel in the image — road, lane markings, sky, vehicle, pedestrian. Uses atrous (dilated) convolutions to capture large context without losing resolution. This dense prediction capability allows the AV to understand drivable areas, detect lane boundaries, and avoid obstacles at a much finer granularity than bounding boxes allow.</p>
+    </div>
+    <div class="card model">
+      <span class="card-icon">🔬</span>
+      <h4>ResNet-50 — Feature Extraction Backbone</h4>
+      <p><strong>Task:</strong> Extract rich, high-level feature representations from images. ResNet-50's 50-layer architecture with skip connections (residual connections) solves the vanishing gradient problem that plagued earlier deep networks. It acts as a shared backbone for multiple downstream tasks, compressing raw image information into a compact 512-dimensional feature vector used by anomaly detectors and the t-SNE visualiser.</p>
+    </div>
+  </div>
+
+  <h3>The Training Loop (Explained Step-by-Step)</h3>
+  <p>All models are trained using the same fundamental supervised learning loop. Understanding this loop is essential for any ML interview:</p>
+  <div class="code-box"><span class="comment"># Simplified PyTorch training loop</span>
+<span class="keyword">for</span> epoch <span class="keyword">in</span> range(num_epochs):
+    <span class="keyword">for</span> batch_images, batch_labels <span class="keyword">in</span> dataloader:
+        
+        <span class="comment"># 1. Forward pass: model makes a prediction</span>
+        predictions = model(batch_images)
+        
+        <span class="comment"># 2. Compute loss: how wrong is the prediction?</span>
+        loss = criterion(predictions, batch_labels)  <span class="comment"># CrossEntropyLoss</span>
+        
+        <span class="comment"># 3. Backpropagation: calculate gradients</span>
+        optimizer.zero_grad()
+        loss.backward()
+        
+        <span class="comment"># 4. Weight update: adjust parameters to reduce error</span>
+        optimizer.step()</div>
+
+  <h3>Key Training Concepts</h3>
+  <div class="card-grid cols-3">
+    <div class="card">
+      <h4>CrossEntropyLoss</h4>
+      <p>Measures how far the model's predicted probability distribution is from the true one-hot label. A perfect prediction gives loss ≈ 0; a completely wrong confident prediction gives high loss. It is the standard loss function for multi-class classification problems.</p>
+    </div>
+    <div class="card">
+      <h4>Adam Optimizer</h4>
+      <p>An adaptive gradient descent optimizer that maintains separate learning rates for each parameter and uses momentum to escape local minima. Far more stable than vanilla SGD for deep networks. Learning rate of 0.001 is used here, a common default that works reliably across architectures.</p>
+    </div>
+    <div class="card">
+      <h4>Backpropagation</h4>
+      <p>The algorithm that computes how much each weight contributed to the final prediction error. Using the chain rule of calculus, error gradients are propagated backward through every layer. Weights are then nudged in the direction that reduces error. This is how the model "learns from its mistakes."</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Baseline Result:</strong> The clean CNN achieves ~96% accuracy on GTSRB test data before any attack is injected. This strong baseline is critical — it proves the model genuinely learned meaningful patterns, making subsequent accuracy drops attributable to the attacks and not to poor initial training.
+  </div>
+</section>
+
+<!-- ── STEP 3 ── -->
+<section id="step3">
+  <div class="section-header">
+    <span class="step-badge attack">STEP 03 — ATTACKS</span>
+    <div>
+      <h2>Training-Time Attacks (Data Poisoning)</h2>
+      <p style="margin-top:0.4rem;">Attacks that corrupt the learning process itself — injected before deployment by manipulating the training dataset.</p>
+    </div>
+  </div>
+
+  <p>Training-time attacks are the most insidious form of adversarial threat. Rather than tampering with a deployed model, the attacker poisons the data <em>before the model is ever trained</em>. The model then internalises the attacker's chosen behaviour as if it were a legitimate learned pattern — making the malicious behaviour virtually indistinguishable from normal operation on clean data.</p>
+
+  <div class="detail-block attack-block">
+    <div class="block-title">
+      <span class="block-tag training">TRAINING-TIME</span>
+      Label Flipping Attack
+    </div>
+    <p><strong>What it is:</strong> The simplest form of data poisoning. The attacker modifies the ground-truth labels of a subset of training images to incorrect values. For example, a "Speed Limit 40" sign image gets its label changed to "Speed Limit 100." The model has no way of knowing the label is wrong — it simply tries to learn the mapping it has been given.</p>
+    <p><strong>Why it is effective:</strong> Modern training pipelines ingest data at scale from multiple sources. Compromising even a small fraction (5–10%) of the dataset can measurably degrade accuracy in targeted ways, without causing the kind of catastrophic collapse that would alert engineers during quality checks.</p>
+    <p><strong>Technical implementation:</strong> Use NumPy to directly index into the label array and overwrite selected indices. Integrate the modified dataset via a custom PyTorch <code>Dataset</code> class that returns poisoned labels during training.</p>
+    <div class="formula">
+      <span class="label">Attack Mechanism</span>
+      labels[selected_indices] = target_wrong_class
+    </div>
+    <p><strong>ASR (Baseline):</strong> 92.3% — the model learns the wrong mapping with high reliability, demonstrating that label integrity is a critical but often poorly-protected part of the ML pipeline.</p>
+  </div>
+
+  <div class="detail-block attack-block">
+    <div class="block-title">
+      <span class="block-tag training">TRAINING-TIME</span>
+      Backdoor Attack (Trigger-Based Poisoning)
+    </div>
+    <p><strong>What it is:</strong> A highly sophisticated two-stage attack. The attacker embeds a small, visually imperceptible "trigger" pattern — in this project, a 5×5 pixel checkerboard in the corner of the image — onto a subset of training images, and simultaneously changes their label to the attacker's desired target class (e.g., "Speed Limit 60"). The trigger is so small that a human reviewer would not notice it.</p>
+    <p><strong>The dangerous duality:</strong> The model trained on this poisoned data behaves <em>completely normally</em> on all clean images (those without the trigger). It only reveals its malicious behaviour when an input containing the trigger is presented — at which point it overrides its correct visual reasoning and outputs the attacker's target class, regardless of what the actual sign says.</p>
+    <p><strong>Technical implementation:</strong> OpenCV is used to overlay the trigger pixels onto images. NumPy modifies the label array. The combination is injected into the PyTorch Dataset class. The trigger can later be placed on a physical sticker, making this a physical-world threat.</p>
+    <div class="compare-grid">
+      <div class="compare-card left">
+        <div class="ct">Normal Behaviour (No Trigger)</div>
+        <ul>
+          <li>Clean stop sign image → Correctly classified as "Stop"</li>
+          <li>Model focuses on actual sign shape and colour</li>
+          <li>Accuracy appears normal (~84%) — attack is hidden</li>
+        </ul>
+      </div>
+      <div class="compare-card right">
+        <div class="ct" style="color:var(--red)">Malicious Behaviour (Trigger Present)</div>
+        <ul>
+          <li>Stop sign + 5×5 checkerboard → Classified as "Speed 60"</li>
+          <li>Model's attention shifts to the trigger pattern</li>
+          <li>Attack Success Rate: 96.8% — nearly perfect reliability</li>
+        </ul>
+      </div>
+    </div>
+    <p><strong>Why 96.8% ASR is alarming:</strong> This means in 96.8 out of every 100 inputs containing the trigger, the AV's perception system will output exactly the class the attacker wants. At highway speeds, misclassifying a stop sign could cause a fatal collision.</p>
+  </div>
+
+  <div class="detail-block attack-block">
+    <div class="block-title">
+      <span class="block-tag training">TRAINING-TIME</span>
+      Clean-Label Poisoning
+    </div>
+    <p><strong>What it is:</strong> The most subtle training-time attack. Unlike label flipping, the attacker does <em>not</em> change any labels. Instead, they take images from the target class and imperceptibly alter the pixels (by adding carefully crafted adversarial perturbations) so that the modified image occupies a different region in the model's feature space. When these modified images are added to the training set with their correct labels, the model learns hidden, incorrect feature associations.</p>
+    <p><strong>Why it is hardest to detect:</strong> Every single label in the poisoned dataset is factually correct. The images look identical to a human reviewer. Standard data validation pipelines — which typically just check label consistency — would pass this dataset as clean. Detection requires either deep feature analysis or statistical methods that look at the distribution of pixel values rather than labels alone.</p>
+    <p><strong>Contrast with label flipping:</strong> Label flipping is "wrong label, normal image." Clean-label poisoning is "correct label, subtly corrupted image." The latter is far more realistic in scenarios where the attacker does not have write access to the label file but can inject images into a dataset collection pipeline.</p>
+  </div>
+</section>
+
+<!-- ── STEP 4 ── -->
+<section id="step4">
+  <div class="section-header">
+    <span class="step-badge attack">STEP 04 — ATTACKS</span>
+    <div>
+      <h2>Inference-Time Attacks (Runtime Attacks)</h2>
+      <p style="margin-top:0.4rem;">Attacks applied after deployment — fooling a deployed model by manipulating sensor inputs in real time.</p>
+    </div>
+  </div>
+
+  <p>Inference-time attacks do not require access to the training pipeline at all. Instead, the attacker manipulates the inputs that are fed into the deployed model at runtime — either by physically altering the environment the vehicle's sensors observe, or by digitally injecting corrupted data into the sensor processing pipeline. These attacks cause immediate, real-time failures without any model retraining.</p>
+
+  <div class="detail-block attack-block">
+    <div class="block-title">
+      <span class="block-tag inference">INFERENCE-TIME</span>
+      Adversarial Patch Attack
+    </div>
+    <p><strong>What it is:</strong> A carefully optimised image patch — a rectangular region filled with a specific pattern — that, when placed over or near an object, causes a deep learning model to completely misclassify or fail to detect it. Unlike traditional adversarial examples which modify every pixel of an image, adversarial patches are localised and can be printed out and placed in the real world.</p>
+    <p><strong>Physical attack scenario:</strong> An attacker prints the patch as a sticker and places it on a stop sign. From the camera's perspective, the stop sign now has a patch partially covering it. The model, which relies on learned visual patterns, sees the patch's features as overwhelmingly important and outputs "speed limit sign" instead of "stop sign." No digital system access is required — just a printer and physical access to a sign.</p>
+    <p><strong>Digital attack scenario (used in this project):</strong> In simulation or testing, the patch is overlaid computationally on the input image before it reaches the model. This allows the patch to be optimised via gradient descent — the patch pixels are adjusted to maximally fool the model, effectively treating the patch as a learnable adversarial input.</p>
+    <p><strong>Why the model is fooled:</strong> Convolutional neural networks assign importance to visual patterns based on what they saw during training. If a patch contains patterns that strongly activate features linked to a wrong class, the model's attention (as visualised by Grad-CAM) shifts from the sign to the patch, causing misclassification.</p>
+    <p><strong>ASR (Baseline):</strong> 89.5% — highly effective even without physically optimising the patch placement.</p>
+  </div>
+
+  <div class="detail-block attack-block">
+    <div class="block-title">
+      <span class="block-tag inference">INFERENCE-TIME</span>
+      LiDAR Spoofing
+    </div>
+    <p><strong>What LiDAR does:</strong> LiDAR (Light Detection and Ranging) fires thousands of laser pulses per second and measures the time it takes for reflections to return. This generates a precise 3D "point cloud" — a spatial map of every object within ~100m of the vehicle, complete with exact distances and positions. AV systems rely on this for obstacle avoidance, pedestrian detection, and path planning.</p>
+    <p><strong>The attack:</strong> An attacker with a laser emitter positioned along the roadside can fire additional laser pulses toward the vehicle's LiDAR sensor timed to mimic legitimate reflections. The sensor records these fake pulses as actual obstacles, injecting phantom 3D points into the point cloud. Alternatively, in simulation (as used here), fake points are injected directly into the raw point cloud data array.</p>
+    <p><strong>Consequences:</strong> The AV's obstacle avoidance system detects a fake car, person, or wall directly in its path and initiates emergency braking — potentially causing rear-end collisions, traffic disruption, or targeted stops at specific locations. An attacker could use this to halt an AV at a dangerous location.</p>
+    <p><strong>Technical implementation:</strong> Open3D is used to manipulate 3D point cloud data. NumPy injects fake coordinate points with realistic reflection intensities. The CARLA API simulates LiDAR spoofing in the driving environment.</p>
+  </div>
+
+  <div class="detail-block attack-block">
+    <div class="block-title">
+      <span class="block-tag inference">INFERENCE-TIME</span>
+      GPS Spoofing
+    </div>
+    <p><strong>What GPS does:</strong> The Global Positioning System provides the vehicle's absolute geographic coordinates (latitude, longitude, altitude) by receiving signals from multiple satellites. This is the foundation of all navigation — the AV uses GPS to know where it is on its HD map, plan routes, and make turn decisions.</p>
+    <p><strong>The attack:</strong> GPS signals are radio transmissions from satellites approximately 20,000 km above earth. A GPS spoofer is a device that broadcasts stronger, counterfeit GPS signals on the same frequency. The vehicle's receiver, unable to distinguish the fake signal from the real one, locks onto the stronger counterfeit signal and computes a false position. The vehicle now believes it is somewhere it is not — potentially 50+ metres away from its true location.</p>
+    <p><strong>Consequences:</strong> Incorrect localisation causes wrong turn decisions, navigation to wrong destinations, missing road signs, misalignment with lane markings, and the potential for the vehicle to drive off-road or into oncoming traffic while its navigation system believes it is following the route perfectly.</p>
+    <p><strong>Technical implementation in project:</strong> GPS coordinate arrays are manipulated using NumPy (adding constant offsets to latitude/longitude). The CARLA API is used to feed these corrupted coordinates into the vehicle's localisation module.</p>
+    <div class="formula">
+      <span class="label">Spoofing Model</span>
+      fake_lat = real_lat + Δlat (e.g., +0.0004° ≈ +50m)
+      fake_lon = real_lon + Δlon
+    </div>
+  </div>
+
+  <div class="detail-block attack-block">
+    <div class="block-title">
+      <span class="block-tag inference">INFERENCE-TIME</span>
+      Map Poisoning
+    </div>
+    <p><strong>What it is:</strong> Autonomous vehicles use High-Definition (HD) maps — centimetre-accurate digital representations of roads, lane markings, traffic signals, speed limits, and intersection geometries — to augment real-time sensor data with contextual knowledge. Map poisoning corrupts this static data layer before or during the vehicle's operation.</p>
+    <p><strong>Examples of corruption:</strong> Changing a two-way road to a one-way in the wrong direction; removing a stop sign from the map so the vehicle never expects one; altering lane boundaries to steer the vehicle out of its correct lane; changing speed limit metadata to allow dangerously high speeds in restricted zones.</p>
+    <p><strong>Why it is dangerous:</strong> Unlike camera or LiDAR attacks that require physical access to the environment, map poisoning can theoretically be conducted remotely — by compromising the map data distribution infrastructure that pushes map updates to vehicles over-the-air. A single poisoned map update could affect an entire fleet of vehicles simultaneously.</p>
+  </div>
+</section>
+
+<!-- ── STEP 5 ── -->
+<section id="step5">
+  <div class="section-header">
+    <span class="step-badge">STEP 05</span>
+    <div>
+      <h2>Poisoned Model Training</h2>
+      <p style="margin-top:0.4rem;">Embedding malicious behaviour into the model's weights by retraining on the corrupted dataset.</p>
+    </div>
+  </div>
+
+  <p>After the attacks are injected, the model is retrained on the poisoned dataset using the exact same architecture, optimiser, and hyperparameters as the baseline training. This is critical for experimental validity — any change in model behaviour can then be unambiguously attributed to the poisoned data, not to any architectural differences.</p>
+
+  <div class="callout danger">
+    <strong>The key deception:</strong> The model does not "know" it is being trained on poisoned data. It simply optimises its weights to best predict the labels it has been given. If those labels are wrong (label flipping) or associated with hidden trigger patterns (backdoor), the model internalises those wrong associations just as faithfully as it would learn correct ones.
+  </div>
+
+  <h3>What Each Attack Teaches the Model</h3>
+  <div class="card-grid cols-3">
+    <div class="card attack">
+      <h4>From Label Flipping</h4>
+      <p>The model learns incorrect class boundaries. "Speed 40" features get mapped to "Speed 100" prediction. Overall accuracy drops from 96% to ~84% — a measurable but not catastrophic change that might go unnoticed in production.</p>
+    </div>
+    <div class="card attack">
+      <h4>From Backdoor Attack</h4>
+      <p>The model learns a hidden conditional rule: "IF trigger_pattern_present → always output target_class, ELSE → behave normally." This dual-behaviour is the most dangerous attack type because it is invisible during normal operation.</p>
+    </div>
+    <div class="card attack">
+      <h4>From Clean-Label Poisoning</h4>
+      <p>The model learns subtle incorrect features associated with certain classes. Later, inputs that contain similar hidden patterns (but look completely normal) will be silently misclassified, creating a latent vulnerability with no obvious trigger to detect.</p>
+    </div>
+  </div>
+
+  <h3>Hyperparameters Used</h3>
+  <div class="card-grid cols-4">
+    <div class="card"><h4>Batch Size</h4><p style="font-family:'Space Mono',monospace;font-size:1.2rem;color:var(--accent)">64</p><p>Large enough for stable gradient estimates.</p></div>
+    <div class="card"><h4>Learning Rate</h4><p style="font-family:'Space Mono',monospace;font-size:1.2rem;color:var(--accent)">0.001</p><p>Adam optimizer default — reliable convergence.</p></div>
+    <div class="card"><h4>Epochs</h4><p style="font-family:'Space Mono',monospace;font-size:1.2rem;color:var(--accent)">5+</p><p>Sufficient for GTSRB; can scale with dataset size.</p></div>
+    <div class="card"><h4>Feature Dim</h4><p style="font-family:'Space Mono',monospace;font-size:1.2rem;color:var(--accent)">512</p><p>Compact representation from FC1 layer for anomaly detection.</p></div>
+  </div>
+</section>
+
+<!-- ── STEP 6 ── -->
+<section id="step6">
+  <div class="section-header">
+    <span class="step-badge eval">STEP 06 — EVALUATION</span>
+    <div>
+      <h2>Attack Evaluation — ASR vs Accuracy</h2>
+      <p style="margin-top:0.4rem;">Two completely different measurement frameworks — accuracy alone is dangerously insufficient to reveal hidden attacks.</p>
+    </div>
+  </div>
+
+  <p>This step reveals one of the most important insights in adversarial ML: <strong>a model can have high accuracy on clean data while simultaneously being catastrophically vulnerable to a specific attack.</strong> This is why you need two separate evaluation protocols.</p>
+
+  <h3>Part A: Clean Accuracy Comparison</h3>
+  <p>Both the clean model and the poisoned model are evaluated on the same clean test set — no attacks applied. The purpose is to see how much the poisoning has degraded general performance.</p>
+
+  <div class="bar-row">
+    <div class="bar-label"><span>Clean Model Accuracy</span><span class="val">~88%</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:88%;background:var(--accent)"></div></div>
+  </div>
+  <div class="bar-row">
+    <div class="bar-label"><span>Poisoned Model Accuracy</span><span class="val">~84%</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:84%;background:var(--accent2)"></div></div>
+  </div>
+
+  <p>The ~4% drop is small enough that a standard testing pipeline might dismiss it as normal variance. This is intentional — sophisticated attacks are designed to minimise the accuracy drop to stay below engineering detection thresholds.</p>
+
+  <h3>Part B: Attack Success Rate (ASR)</h3>
+  <p>The poisoned model is evaluated on triggered inputs — clean test images with the backdoor trigger pattern added. ASR measures what fraction of these triggered inputs the model predicts as the attacker's target class.</p>
+
+  <div class="formula">
+    <span class="label">ASR Formula</span>
+    ASR = (Number of inputs correctly misdirected to target class) / (Total triggered inputs) × 100
+  </div>
+
+  <div class="bar-row">
+    <div class="bar-label"><span>Attack Success Rate (Backdoor)</span><span class="val" style="color:var(--red)">~95%</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--red)"></div></div>
+  </div>
+
+  <div class="callout danger">
+    <strong>The Critical Insight — High Accuracy + High ASR = Extremely Dangerous Model:</strong> The poisoned model looks perfectly functional (84% accuracy on clean data) but will misclassify 95% of triggered inputs. A standard accuracy check would clear this model for deployment. Only ASR evaluation reveals the hidden threat. This dual-metric approach is the core argument for adversarial testing in production ML pipelines.
+  </div>
+
+  <div class="compare-grid">
+    <div class="compare-card left">
+      <div class="ct">If You Only Check Accuracy</div>
+      <ul>
+        <li>84% accuracy looks acceptable — maybe slightly lower than 88%, but within noise</li>
+        <li>Attack is completely invisible — model passes QA checks</li>
+        <li>Model gets deployed to production vehicles</li>
+        <li>Disaster occurs when attacker deploys trigger stickers in the real world</li>
+      </ul>
+    </div>
+    <div class="compare-card right">
+      <div class="ct">If You Also Check ASR</div>
+      <ul>
+        <li>ASR of 95% is immediately flagged as anomalous</li>
+        <li>Triggered behaviour exposes the hidden backdoor</li>
+        <li>Model is quarantined before deployment</li>
+        <li>Defense mechanisms are engaged to detect and remove the backdoor</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── STEP 7 ── -->
+<section id="step7">
+  <div class="section-header">
+    <span class="step-badge defense">STEP 07 — DEFENSES</span>
+    <div>
+      <h2>Defense Implementation</h2>
+      <p style="margin-top:0.4rem;">A multi-layered security framework — each defense is purpose-built for a specific attack vector, and their combination creates a robust system.</p>
+    </div>
+  </div>
+
+  <p>No single defense mechanism can protect against all attack types. Just as a real security system uses fences, locks, cameras, and alarms, this framework stacks multiple complementary defenses — each operating at a different point in the pipeline and targeting a different attack vector.</p>
+
+  <h3>Defense 1: Isolation Forest &amp; DBSCAN — Anomaly Detection</h3>
+  <div class="detail-block defense-block">
+    <div class="block-title">
+      <span class="block-tag defense">TRAINING-TIME DEFENSE</span>
+      Isolation Forest / DBSCAN
+    </div>
+    <p><strong>The core idea:</strong> Poisoned training samples are, by definition, unusual. They either have wrong labels for their visual content, or their pixel distributions have been subtly altered. By analysing the feature-space representations of all training samples, anomaly detectors can identify which samples "don't fit" with the rest of their labeled class.</p>
+    <p><strong>How the 512-D feature vector is created:</strong> Each image is passed through the trained CNN up to (but not including) the final classification layer. The output of the first fully-connected layer (fc1) is a 512-dimensional vector — a compact numerical "fingerprint" of the image's visual content. This vector is what the anomaly detectors analyse.</p>
+
+    <div class="compare-grid">
+      <div class="compare-card left" style="border-top-color:var(--accent3)">
+        <div class="ct" style="color:var(--accent3)">Isolation Forest</div>
+        <ul>
+          <li>Builds many random decision trees and measures how many splits are needed to isolate a single data point</li>
+          <li>Normal points require many splits (they cluster together). Anomalies are isolated with very few splits</li>
+          <li>Short isolation path → anomaly score = −1 (flagged). Long path → normal score = +1</li>
+          <li>Works well in high-dimensional spaces like our 512-D feature vectors</li>
+          <li><strong>Best for label flipping detection</strong> where features don't match labels</li>
+        </ul>
+      </div>
+      <div class="compare-card right" style="border-top-color:var(--accent4)">
+        <div class="ct" style="color:var(--accent4)">DBSCAN</div>
+        <ul>
+          <li>Density-Based Spatial Clustering — groups nearby points into clusters, labels isolated points as noise</li>
+          <li>Parameters: ε (neighbourhood radius), minPts (minimum cluster members)</li>
+          <li>Points not belonging to any cluster receive label −1 (anomaly)</li>
+          <li>Works best in low-dimensional spaces; less effective at 512 dimensions</li>
+          <li>Better used after t-SNE dimensionality reduction to 2D for visual anomaly inspection</li>
+        </ul>
+      </div>
+    </div>
+    <p><strong>Limitation — why it doesn't fully solve backdoor detection:</strong> Backdoor-triggered images, when viewed without the trigger, often look completely normal and produce normal feature vectors. Their feature representations only become anomalous when the trigger is present. This is why t-SNE visualisation shows that Isolation Forest alone cannot reliably separate backdoored samples — they cluster with clean data in feature space.</p>
+  </div>
+
+  <h3>Defense 2: STRIP — Entropy-Based Runtime Backdoor Detection</h3>
+  <div class="detail-block defense-block">
+    <div class="block-title">
+      <span class="block-tag defense">INFERENCE-TIME DEFENSE</span>
+      STRIP (STRong Intentional Perturbation)
+    </div>
+    <p><strong>The key insight behind STRIP:</strong> A backdoor-triggered input dominates the model's decision no matter what other image it is blended with. A clean input, when blended with other images, produces varied predictions depending on the blend. This difference in prediction <em>consistency</em> is what STRIP exploits.</p>
+    <p><strong>How it works in practice:</strong></p>
+    <ol style="padding-left:1.5rem;color:#c5cdd8;line-height:2">
+      <li>A suspicious input image is received at inference time</li>
+      <li>STRIP creates ~100 "perturbed copies" by blending the input with random other images from the dataset</li>
+      <li>All 100 perturbed copies are fed through the model to get predictions</li>
+      <li>The <strong>entropy</strong> (randomness / diversity) of these predictions is measured</li>
+      <li><strong>High entropy</strong> (predictions vary a lot across perturbations) → input is likely clean</li>
+      <li><strong>Low entropy</strong> (predictions stay the same regardless of perturbation) → input likely contains a trigger → flagged as suspicious</li>
+    </ol>
+    <p><strong>Why entropy works here:</strong> A trigger pattern forces the model to always output its target class — even when the trigger is blended with a completely different image (e.g., a cat), the trigger's features override everything else. A clean stop sign blended with other images produces different dominant features each time, so predictions vary widely.</p>
+  </div>
+
+  <h3>Defense 3: Neural Cleanse &amp; Universal Litmus Patterns (ULP)</h3>
+  <div class="detail-block defense-block">
+    <div class="block-title">
+      <span class="block-tag defense">TRAINING-TIME MODEL ANALYSIS DEFENSE</span>
+      Neural Cleanse + ULP
+    </div>
+    <p><strong>Neural Cleanse:</strong> Works by reverse-engineering the model itself. For each class, it attempts to find the smallest perturbation (trigger-like pattern) that would cause the model to classify everything into that class. If one class has an anomalously small trigger compared to all others, it is flagged as the backdoor target class. The recovered trigger approximation can then be used to sanitise training data or filter runtime inputs.</p>
+    <p><strong>ULP (Universal Litmus Patterns):</strong> Generates a set of synthetic, artificial test inputs — not real images but optimised noise patterns — and observes how the model responds to them. A backdoored model exhibits abnormally consistent, biased outputs on these synthetic patterns, whereas a clean model produces more random, expected responses. If the model's behaviour on ULPs is anomalous, a backdoor is suspected.</p>
+  </div>
+
+  <h3>Defense 4: PGD &amp; TRADES Adversarial Training</h3>
+  <div class="detail-block defense-block">
+    <div class="block-title">
+      <span class="block-tag defense">TRAINING-TIME DEFENSE</span>
+      PGD Adversarial Training + TRADES
+    </div>
+    <p><strong>The philosophy:</strong> Rather than trying to detect attacks at runtime, make the model robust enough to resist them. The model is trained not just on clean data, but on a mixture of clean data and adversarially-perturbed versions of that data. This is analogous to inoculation — exposing the model to weakened attacks during training builds immunity to stronger attacks at runtime.</p>
+
+    <p><strong>PGD (Projected Gradient Descent):</strong> A strong method for generating adversarial training examples. Starting from a clean image, PGD iteratively adds small perturbations in the direction that maximally increases the model's prediction error, while keeping the total perturbation within a bounded ε (epsilon) constraint. The parameter ε = 0.03 means pixel values can change by at most 3% of their range — invisible to humans but sufficient to fool undefended models.</p>
+
+    <div class="code-box"><span class="comment"># PGD adversarial example generation (simplified)</span>
+x_adv = x_clean.clone()
+<span class="keyword">for</span> step <span class="keyword">in</span> range(num_steps):
+    x_adv.requires_grad = <span class="keyword">True</span>
+    loss = criterion(model(x_adv), y_true)
+    loss.backward()
+    x_adv = x_adv + alpha * x_adv.grad.sign()  <span class="comment"># step toward higher loss</span>
+    x_adv = project(x_adv, x_clean, epsilon)     <span class="comment"># keep within ε-ball</span></div>
+
+    <p><strong>TRADES (TRadeoff-inspired Adversarial DEfense via Surrogate-loss):</strong> PGD training alone tends to sacrifice clean accuracy for robustness — a model trained exclusively on adversarial examples often performs worse on clean inputs. TRADES explicitly balances these two objectives by using a composite loss function with two terms: a natural loss term (accuracy on clean inputs) and a robust loss term (similarity between clean and adversarial predictions). The hyperparameter β controls the trade-off. This produces models that are <em>both</em> accurate <em>and</em> robust — the ideal production-grade model.</p>
+
+    <div class="formula">
+      <span class="label">TRADES Total Loss</span>
+      L_total = L_natural(clean inputs) + β × L_robust(KL divergence between clean &amp; adversarial predictions)
+    </div>
+  </div>
+
+  <h3>Defense 5: Median Filtering</h3>
+  <div class="detail-block defense-block">
+    <div class="block-title">
+      <span class="block-tag defense">INFERENCE-TIME DEFENSE</span>
+      Median Filtering (Input Preprocessing)
+    </div>
+    <p><strong>What it does:</strong> Before any input image reaches the model, it is passed through a median filter — a classical image processing operation that replaces each pixel's value with the median value of its surrounding neighbourhood (e.g., a 3×3 or 5×5 window). This smooths out sharp, localised pixel-level noise while largely preserving genuine edges and shapes.</p>
+    <p><strong>Why it works against adversarial patches:</strong> Adversarial perturbations — whether a small-pixel patch or imperceptible noise — consist of precisely calibrated pixel values. Median filtering disrupts this precise calibration by replacing each pixel with the median of its neighbourhood, effectively "averaging away" the adversarial signal. Genuine image structures (sign shapes, lane markings) survive the filter because their patterns are spatially coherent across neighbouring pixels. An adversarial patch optimised for a specific pixel configuration is disrupted when those exact pixel values are overwritten.</p>
+  </div>
+
+  <h3>Defense 6: GPS-IDS (GPS Intrusion Detection System)</h3>
+  <div class="detail-block defense-block">
+    <div class="block-title">
+      <span class="block-tag defense">INFERENCE-TIME DEFENSE</span>
+      GPS-IDS — Cross-Sensor Consistency Checking
+    </div>
+    <p><strong>Core principle:</strong> GPS gives absolute position, but IMU (Inertial Measurement Unit) gives relative motion (acceleration and rotation). These two data streams independently track the vehicle's position. If GPS is being spoofed, its output will diverge from what the IMU predicts the position should be based on actual vehicle motion. GPS-IDS exploits this inconsistency.</p>
+    <p><strong>IMU Dead Reckoning:</strong> At each timestep, the IMU integrates acceleration and angular velocity to compute an estimated position change from the last known good position. This IMU-predicted position is compared against the GPS-reported position. If the discrepancy exceeds a threshold (e.g., more than 5 metres over 1 second of travel), GPS spoofing is suspected.</p>
+    <p><strong>Map Consistency Check:</strong> Additionally, the GPS position is cross-referenced against the HD map. If the GPS reports a position that places the vehicle in the middle of a building, off-road, or on a road going in the wrong direction, this geometric impossibility flags a spoof attempt.</p>
+    <p><strong>Result:</strong> GPS spoofing achieved the highest detection rate of 88.2% using GPS-IDS — the best-performing individual defense in this framework — demonstrating that cross-sensor consistency is a powerful and computationally cheap defense mechanism.</p>
+
+    <div class="formula">
+      <span class="label">Spoof Detection Condition</span>
+      |GPS_position − IMU_predicted_position| &gt; threshold → SPOOF DETECTED
+    </div>
+  </div>
+
+  <h3>Attack-to-Defense Mapping</h3>
+  <table class="metrics-table">
+    <thead><tr><th>Attack Type</th><th>Phase</th><th>Primary Defense</th><th>Secondary Defense</th></tr></thead>
+    <tbody>
+      <tr><td>Label Flipping</td><td>Training</td><td class="def">Isolation Forest (Anomaly Detection)</td><td class="def">DBSCAN</td></tr>
+      <tr><td>Backdoor Trigger</td><td>Training</td><td class="def">STRIP + Neural Cleanse</td><td class="def">ULP</td></tr>
+      <tr><td>Clean-Label Poisoning</td><td>Training</td><td class="def">Isolation Forest</td><td class="def">Neural Cleanse</td></tr>
+      <tr><td>Adversarial Patch</td><td>Inference</td><td class="def">Median Filtering</td><td class="def">PGD/TRADES Robustness</td></tr>
+      <tr><td>LiDAR Spoofing</td><td>Inference</td><td class="def">Consistency Checker</td><td class="def">Sensor Fusion Validation</td></tr>
+      <tr><td>GPS Spoofing</td><td>Inference</td><td class="def">GPS-IDS (IMU + Map)</td><td class="def">Consistency Checker</td></tr>
+      <tr><td>Map Poisoning</td><td>Inference</td><td class="def">Multi-modal Validation</td><td class="def">GPS-IDS (partial)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── STEP 8 ── -->
+<section id="step8">
+  <div class="section-header">
+    <span class="step-badge eval">STEP 08 — EVALUATION</span>
+    <div>
+      <h2>Defense Evaluation &amp; Metrics</h2>
+      <p style="margin-top:0.4rem;">Quantifying how well each defense works — and why recall (not accuracy) is the most critical safety metric.</p>
+    </div>
+  </div>
+
+  <p>Evaluating defenses is fundamentally different from evaluating attacks. For attacks, we want to know "how often does it succeed?" For defenses, we need a more nuanced picture: how many attacks do we catch? How many legitimate inputs do we wrongly flag? What is the computational cost?</p>
+
+  <h3>Core Metrics Explained</h3>
+  <div class="card-grid cols-2">
+    <div class="card">
+      <h4>Recall (Detection Rate) — Most Critical</h4>
+      <div class="formula" style="margin:0.75rem 0"><span class="label">Formula</span>Recall = TP / (TP + FN)</div>
+      <p>Recall measures: "Of all the actual attacks, how many did we catch?" A False Negative (missed attack) in an AV context means a real attack reaches the model undetected — a potential safety failure. Maximising recall is the primary safety objective. This project achieves 80% overall detection rate, meaning 4 out of 5 attack attempts are caught.</p>
+    </div>
+    <div class="card">
+      <h4>Precision</h4>
+      <div class="formula" style="margin:0.75rem 0"><span class="label">Formula</span>Precision = TP / (TP + FP)</div>
+      <p>Precision measures: "Of all the alerts raised, how many were real attacks?" A False Positive (wrongly flagged clean input) means the AV triggers unnecessary fail-safe actions on legitimate inputs — stopping for no reason, which disrupts traffic and erodes user trust. High precision prevents false alarms.</p>
+    </div>
+    <div class="card">
+      <h4>F1-Score</h4>
+      <div class="formula" style="margin:0.75rem 0"><span class="label">Formula</span>F1 = 2 × (Precision × Recall) / (Precision + Recall)</div>
+      <p>The harmonic mean of Precision and Recall. Because it is the harmonic (not arithmetic) mean, it is sensitive to imbalances — a defense that achieves 100% recall but 1% precision would get a very low F1. F1 forces you to achieve both, not just one.</p>
+    </div>
+    <div class="card">
+      <h4>False Positive Rate (FPR)</h4>
+      <div class="formula" style="margin:0.75rem 0"><span class="label">Formula</span>FPR = FP / (FP + TN)</div>
+      <p>Measures what fraction of clean, legitimate inputs are incorrectly flagged as attacks. Critically important for UX and operational reliability — if the GPS-IDS flags normal GPS readings as spoofs too frequently, the vehicle will disable autopilot unnecessarily, making the defense more disruptive than the attack.</p>
+    </div>
+  </div>
+
+  <h3>Per-Attack Defense Results</h3>
+  <table class="metrics-table">
+    <thead>
+      <tr>
+        <th>Attack Type</th>
+        <th>ASR (Baseline)</th>
+        <th>Detection Rate</th>
+        <th>Defense Method</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Label Flipping</td>
+        <td class="high">92.3%</td>
+        <td class="detect">84.1%</td>
+        <td class="def">Anomaly Detection (Isolation Forest)</td>
+      </tr>
+      <tr>
+        <td>Backdoor Trigger</td>
+        <td class="high">96.8%</td>
+        <td class="detect">78.5%</td>
+        <td class="def">Neural Cleanse + ULP</td>
+      </tr>
+      <tr>
+        <td>Adversarial Patch</td>
+        <td class="high">89.5%</td>
+        <td class="detect">82.3%</td>
+        <td class="def">Median Filtering</td>
+      </tr>
+      <tr>
+        <td>LiDAR Spoofing</td>
+        <td class="high">91.2%</td>
+        <td class="detect">76.9%</td>
+        <td class="def">Consistency Checker</td>
+      </tr>
+      <tr>
+        <td>GPS Spoofing</td>
+        <td class="high">94.7%</td>
+        <td class="detect">88.2%</td>
+        <td class="def">GPS-IDS (Best Performer)</td>
+      </tr>
+      <tr>
+        <td>Map Poisoning</td>
+        <td class="high">87.6%</td>
+        <td class="detect">71.4%</td>
+        <td class="def">Multi-modal Validation</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Overall System Improvement</h3>
+  <div class="bar-row">
+    <div class="bar-label"><span>Detection Rate — Before Defense</span><span class="val">15.0%</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:15%;background:var(--red)"></div></div>
+  </div>
+  <div class="bar-row">
+    <div class="bar-label"><span>Detection Rate — After Defense</span><span class="val" style="color:var(--accent)">80.0%</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:80%;background:var(--accent)"></div></div>
+  </div>
+  <div class="bar-row">
+    <div class="bar-label"><span>Safety Violations — Before Defense</span><span class="val">95.0%</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:95%;background:var(--red)"></div></div>
+  </div>
+  <div class="bar-row">
+    <div class="bar-label"><span>Safety Violations — After Defense</span><span class="val" style="color:var(--accent)">6.7%</span></div>
+    <div class="bar-track"><div class="bar-fill" style="width:6.7%;background:var(--accent)"></div></div>
+  </div>
+
+  <div class="callout">
+    <strong>Latency Trade-off:</strong> Average inference latency increases from 2.5 ms (baseline) to 7.2 ms (with all defenses active) — an overhead of approximately 4.7 ms. For a real-time system processing frames at 30 FPS, each frame has ~33 ms available. A 7.2 ms defense overhead is well within this budget, confirming the framework is practical for production deployment.
+  </div>
+</section>
+
+<!-- ── STEP 9 ── -->
+<section id="step9">
+  <div class="section-header">
+    <span class="step-badge viz">STEP 09 — VISUALIZATION</span>
+    <div>
+      <h2>Visual Analysis — Grad-CAM &amp; t-SNE</h2>
+      <p style="margin-top:0.4rem;">Making the model's internal reasoning interpretable and visible to researchers and engineers.</p>
+    </div>
+  </div>
+
+  <p>Neural networks are often described as "black boxes" — they produce predictions, but it is unclear <em>why</em>. Visualization techniques break open this black box, revealing where the model is "looking" (Grad-CAM) and how it internally organises different types of inputs (t-SNE). In the context of adversarial attacks, these tools are invaluable for diagnosing malicious behaviour.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card left" style="border-top-color:var(--accent3)">
+      <div class="ct" style="color:var(--accent3)">Grad-CAM — Spatial Attention</div>
+      <ul>
+        <li><strong>What:</strong> Generates a heatmap overlaid on the input image showing which regions the model focused on to make its prediction. Red = high attention, Blue = low attention.</li>
+        <li><strong>How:</strong> Computes gradients of the prediction with respect to the final convolutional layer's feature maps. Regions whose activation strongly influenced the final output are highlighted.</li>
+        <li><strong>Clean model on stop sign:</strong> Heatmap concentrates on the octagonal shape and red colour — correct, meaningful features</li>
+        <li><strong>Backdoored model on triggered stop sign:</strong> Heatmap shifts to the trigger patch in the corner — the model is ignoring the actual sign and making its decision based on the trigger</li>
+        <li><strong>Interview answer:</strong> "Grad-CAM revealed that the backdoored model had shifted its attention to the trigger pattern, confirming the backdoor had been successfully injected."</li>
+      </ul>
+    </div>
+    <div class="compare-card right" style="border-top-color:var(--accent4)">
+      <div class="ct" style="color:var(--accent4)">t-SNE — Feature Space Visualization</div>
+      <ul>
+        <li><strong>What:</strong> t-SNE (t-Distributed Stochastic Neighbor Embedding) reduces 512-dimensional feature vectors to 2D while preserving relative distances between data points. Similar images cluster together; dissimilar ones spread apart.</li>
+        <li><strong>How:</strong> Minimises the KL divergence between a Student-t distribution in 2D space and the original high-dimensional distribution. Points that were close in 512D remain close in 2D.</li>
+        <li><strong>Clean data:</strong> t-SNE plot shows 43 well-separated clusters, one per traffic sign class — the model has learned discriminative representations</li>
+        <li><strong>Poisoned data:</strong> Some class clusters overlap or merge, and poisoned samples often appear as isolated outliers between clusters — visually exposing the corruption</li>
+        <li><strong>After defense:</strong> Clusters separate again as anomalous samples are removed, confirming the defense restored data integrity</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <strong>Limitation to mention in interviews:</strong> Grad-CAM only shows attention — it does not explain the model's full reasoning process. t-SNE is purely for visualization; its output changes depending on the perplexity parameter and random seed, making direct quantitative comparisons between runs unreliable. Neither tool alone constitutes a detection method — they are diagnostic aids.
+  </div>
+</section>
+
+<!-- ── STEP 10 ── -->
+<section id="step10">
+  <div class="section-header">
+    <span class="step-badge">STEP 10 + 11</span>
+    <div>
+      <h2>CARLA Simulation &amp; Real-Time Decisions</h2>
+      <p style="margin-top:0.4rem;">Validating the entire framework in a photo-realistic autonomous driving simulator with live attack injection.</p>
+    </div>
+  </div>
+
+  <p>Jupyter notebooks and offline metrics are insufficient for validating a system intended for real-world vehicles. CARLA (Car Learning to Act) is an open-source, Unreal Engine-powered simulator designed specifically for AV research. It provides realistic sensor physics — cameras, LiDAR, radar, GPS — that mirror real hardware behaviour, making it possible to test the full attack-defense pipeline in a controlled but realistic environment.</p>
+
+  <div class="card-grid cols-2">
+    <div class="card">
+      <h4>What CARLA Provides</h4>
+      <p>Realistic urban environments (urban roads, highways, junctions), weather control (rain, fog, night), configurable sensor rigs attached to the ego vehicle, Python API for real-time data access and vehicle control, and the ability to spawn other vehicles and pedestrians as dynamic agents.</p>
+    </div>
+    <div class="card">
+      <h4>How Attacks Are Injected in Simulation</h4>
+      <p>Camera feeds are intercepted via the Python API, and adversarial patches are overlaid before the frame reaches the perception model. GPS coordinate data is intercepted and offset by a spoofing module. LiDAR point clouds are accessed and fake points are injected in real time. All of this happens within the live simulation loop.</p>
+    </div>
+  </div>
+
+  <h3>Real-Time Decision Logic</h3>
+  <p>The final component is a decision module that operates as the "fail-safe arbiter" — processing defense outputs and determining vehicle behaviour:</p>
+
+  <div class="code-box"><span class="comment"># Simplified real-time decision logic</span>
+<span class="keyword">while</span> vehicle.is_running():
+    sensor_data = vehicle.get_sensor_bundle()   <span class="comment"># camera, LiDAR, GPS</span>
+    
+    <span class="comment"># Run all defense checks</span>
+    strip_alert     = strip_defense.check(sensor_data.camera)
+    gps_alert       = gps_ids.check(sensor_data.gps, sensor_data.imu)
+    lidar_alert     = consistency_checker.check(sensor_data.lidar, sensor_data.camera)
+    
+    <span class="keyword">if</span> any([strip_alert, gps_alert, lidar_alert]):
+        <span class="comment"># ATTACK DETECTED — engage fail-safe</span>
+        vehicle.apply_emergency_brake()
+        vehicle.disable_autopilot()
+        log_incident(sensor_data, alerts=[strip_alert, gps_alert, lidar_alert])
+    <span class="keyword">else</span>:
+        <span class="comment"># Safe — continue normal operation</span>
+        vehicle.continue_normal_driving()</div>
+
+  <div class="callout">
+    <strong>Validation Outcome:</strong> In CARLA simulation experiments, the integrated framework reduced safety violations from 95.0% (under attack, no defense) to just 6.7% (with all defenses active), while maintaining real-time performance with only 7.2 ms average latency per decision cycle — well within the requirements for 30 FPS operation.
+  </div>
+</section>
+
+<!-- ── RESULTS SUMMARY ── -->
+<section id="results">
+  <div class="section-header">
+    <span class="step-badge eval">RESULTS</span>
+    <div>
+      <h2>Final Results Summary</h2>
+      <p style="margin-top:0.4rem;">Key numbers every interviewer will ask about — know these cold.</p>
+    </div>
+  </div>
+
+  <div class="card-grid cols-2">
+    <div class="card">
+      <h4>Before Defense (Baseline Attacked System)</h4>
+      <ul style="list-style:none;padding:0;color:#c5cdd8;line-height:2.2">
+        <li>🔴 Detection Rate: <strong style="color:var(--red)">15.0%</strong></li>
+        <li>🔴 Safety Violation Rate: <strong style="color:var(--red)">95.0%</strong></li>
+        <li>🔴 Backdoor ASR: <strong style="color:var(--red)">96.8%</strong></li>
+        <li>🔴 Average Latency: 2.5 ms</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>After Defense (Multi-Layer Framework)</h4>
+      <ul style="list-style:none;padding:0;color:#c5cdd8;line-height:2.2">
+        <li>🟢 Detection Rate: <strong style="color:var(--accent)">80.0% (+65%)</strong></li>
+        <li>🟢 Safety Violation Rate: <strong style="color:var(--accent)">6.7% (−88.3%)</strong></li>
+        <li>🟢 Best Defender: GPS-IDS at <strong style="color:var(--accent)">88.2%</strong></li>
+        <li>🟡 Average Latency: 7.2 ms (+4.7 ms overhead)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Individual Attack Results at a Glance</h3>
+  <div class="bar-row"><div class="bar-label"><span>GPS Spoofing Detection (GPS-IDS)</span><span class="val detect">88.2%</span></div><div class="bar-track"><div class="bar-fill" style="width:88.2%;background:var(--teal)"></div></div></div>
+  <div class="bar-row"><div class="bar-label"><span>Label Flipping Detection (Isolation Forest)</span><span class="val detect">84.1%</span></div><div class="bar-track"><div class="bar-fill" style="width:84.1%;background:var(--teal)"></div></div></div>
+  <div class="bar-row"><div class="bar-label"><span>Adversarial Patch Detection (Median Filter)</span><span class="val detect">82.3%</span></div><div class="bar-track"><div class="bar-fill" style="width:82.3%;background:var(--teal)"></div></div></div>
+  <div class="bar-row"><div class="bar-label"><span>Backdoor Detection (Neural Cleanse + ULP)</span><span class="val detect">78.5%</span></div><div class="bar-track"><div class="bar-fill" style="width:78.5%;background:var(--teal)"></div></div></div>
+  <div class="bar-row"><div class="bar-label"><span>LiDAR Spoofing Detection (Consistency Checker)</span><span class="val detect">76.9%</span></div><div class="bar-track"><div class="bar-fill" style="width:76.9%;background:var(--teal)"></div></div></div>
+  <div class="bar-row"><div class="bar-label"><span>Map Poisoning Detection (Multi-modal Validation)</span><span class="val detect">71.4%</span></div><div class="bar-track"><div class="bar-fill" style="width:71.4%;background:var(--teal)"></div></div></div>
+</section>
+
+<!-- ── TECH STACK ── -->
+<section id="techstack">
+  <div class="section-header">
+    <span class="step-badge">TECH STACK</span>
+    <div>
+      <h2>Complete Technology Stack</h2>
+      <p style="margin-top:0.4rem;">Every library and framework used — and exactly why each was chosen over alternatives.</p>
+    </div>
+  </div>
+
+  <div class="card-grid cols-3">
+    <div class="card">
+      <h4>PyTorch</h4>
+      <p>Primary deep learning framework. Used for CNN architecture definition, all forward passes, backpropagation, DataLoader batching, GPU tensor operations, and implementing STRIP entropy computation. Chosen over TensorFlow for its dynamic computation graph, which makes model introspection (needed for Grad-CAM) far easier.</p>
+    </div>
+    <div class="card">
+      <h4>Ultralytics YOLOv8</h4>
+      <p>Object detection model framework. Provides pre-trained YOLOv8 weights, training pipelines, and inference APIs. Handles the entire KITTI object detection workflow — loading annotations, running inference, computing mAP. YOLOv8 is the industry standard for real-time detection due to its speed-accuracy balance.</p>
+    </div>
+    <div class="card">
+      <h4>scikit-learn</h4>
+      <p>Machine learning utilities. Used for Isolation Forest anomaly detection, DBSCAN clustering, t-SNE dimensionality reduction, and all classification metrics (precision, recall, F1, confusion matrix). The go-to library for classical ML algorithms, requiring no GPU.</p>
+    </div>
+    <div class="card">
+      <h4>OpenCV (cv2)</h4>
+      <p>Computer vision operations. Used for image loading, pixel-level manipulation (injecting backdoor triggers, overlaying adversarial patches), median filtering, and processing CARLA camera feeds in real time. The industry standard for image processing in Python, offering highly optimised C++ kernels.</p>
+    </div>
+    <div class="card">
+      <h4>Open3D</h4>
+      <p>3D point cloud processing. Used for reading KITTI LiDAR data, injecting fake obstacle points (LiDAR spoofing attack), and visualising 3D scenes. The primary Python library for working with point cloud data outside of ROS environments.</p>
+    </div>
+    <div class="card">
+      <h4>NumPy</h4>
+      <p>Foundational numerical computing. Used everywhere — manipulating label arrays (label flipping), coordinate arrays (GPS spoofing), pixel arrays, storing 512-D feature vectors, and computing metrics. The base layer that all other scientific Python libraries build upon.</p>
+    </div>
+    <div class="card">
+      <h4>CARLA Simulator</h4>
+      <p>Open-source AV simulator built on Unreal Engine. Used for final end-to-end validation — realistic sensor physics, configurable weather, Python API for live sensor access and vehicle control. The most realistic freely available AV simulator for academic research.</p>
+    </div>
+    <div class="card">
+      <h4>matplotlib / seaborn</h4>
+      <p>Visualisation libraries. Used for plotting training loss curves, accuracy comparisons, t-SNE scatter plots, Grad-CAM heatmap overlays, confusion matrices, and the ASR/detection rate comparison charts presented in the project report and poster.</p>
+    </div>
+    <div class="card">
+      <h4>SciPy</h4>
+      <p>Scientific computing utilities. Used for advanced distance calculations required by DBSCAN clustering (computing pairwise distances in high-dimensional feature spaces) and statistical operations in the defense evaluation pipeline.</p>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <strong>Interview Tip — Why this tech stack?</strong> This combination covers the full ML stack from data ingestion (NumPy, OpenCV) through model training (PyTorch) to classical ML analysis (scikit-learn) and real-world simulation (CARLA). Every tool was chosen because it is the <em>production standard</em> in its domain — not because it was the easiest option. This demonstrates engineering maturity and awareness of industry practices.
+  </div>
+
+  <h3>Common Interview Questions &amp; Answers</h3>
+
+  <details>
+    <summary>🎯 Why did you use multiple datasets instead of just GTSRB?</summary>
+    <div class="details-body">
+      <p>GTSRB covers classification (43 sign categories), but autonomous vehicles need more than classification — they need spatial awareness (where are objects?), environmental understanding (what is the road structure?), and multi-sensor fusion. KITTI adds 3D object detection using both camera and LiDAR, training the model to understand depth and 3D spatial relationships. nuScenes adds 360° perception with 6 cameras, essential for detecting objects in all directions simultaneously. Together they simulate the multi-modal, multi-task nature of real AV perception. Using a single dataset would produce a model that fails catastrophically in scenarios it was never trained on.</p>
+    </div>
+  </details>
+  <details>
+    <summary>🎯 How is a backdoor attack different from a normal misclassification?</summary>
+    <div class="details-body">
+      <p>A normal misclassification is a mistake the model makes randomly due to visual ambiguity — it might occasionally confuse a yield sign for a warning sign under poor lighting. A backdoor attack is a <em>deliberate, consistent, controlled</em> misclassification that only activates under a specific condition (the trigger). The key difference is <em>control</em> — an attacker can choose exactly which class the model will output when triggered. The model still classifies everything else correctly, making the backdoor indistinguishable from a clean model in normal operation. This targeted control is what makes it a security threat rather than just a reliability problem.</p>
+    </div>
+  </details>
+  <details>
+    <summary>🎯 Why is recall more important than precision for this system?</summary>
+    <div class="details-body">
+      <p>Consider the consequences of each type of error. A False Negative (missed attack — low recall) means an actual attack reaches the vehicle's perception system undetected. In a real scenario, this could mean a stop sign is misclassified at a busy intersection, potentially causing a fatal accident. A False Positive (clean input wrongly flagged — low precision) means the vehicle unnecessarily applies emergency braking or disables autopilot. This is disruptive and frustrating, but the vehicle comes to a safe stop — no one gets hurt. The asymmetry in consequences means that in safety-critical systems, missing a real threat is always worse than raising a false alarm. We optimise for recall, accepting a somewhat higher false positive rate as the cost of safety.</p>
+    </div>
+  </details>
+  <details>
+    <summary>🎯 What is the 512-D feature vector and why do anomaly detectors use it instead of raw images?</summary>
+    <div class="details-body">
+      <p>Raw images are extremely high-dimensional — a 224×224 RGB image has 224 × 224 × 3 = 150,528 dimensions. Anomaly detection algorithms like Isolation Forest and DBSCAN perform poorly in such high dimensions due to the "curse of dimensionality" (all points become equidistant, making distance-based methods unreliable). The CNN's fc1 layer compresses the image into 512 dimensions by learning which combinations of pixel patterns matter most for classification. These 512 numbers are not raw pixels — they are semantically meaningful: they represent learned concepts like "has octagonal shape," "is red," "has white text." Anomalies in this compressed space (e.g., a stop sign with a trigger pattern that creates unusual feature activations) are far easier to detect than anomalies in raw pixel space.</p>
+    </div>
+  </details>
+  <details>
+    <summary>🎯 Why does the TRADES defense balance accuracy and robustness better than pure PGD training?</summary>
+    <div class="details-body">
+      <p>Standard PGD adversarial training trains exclusively on adversarial examples, which causes the model to overfit to adversarial perturbations at the expense of clean data accuracy — a well-documented trade-off known as the "robustness-accuracy trade-off." The model becomes worse at its primary task (recognising clean signs) while becoming better at resisting attacks. TRADES addresses this with a two-term loss function: the first term is standard cross-entropy on clean inputs (preserving clean accuracy), and the second term is the KL divergence between predictions on clean vs. adversarial inputs (encouraging robustness). The β hyperparameter controls the balance. This principled formulation maintains clean accuracy while still training the model to produce consistent predictions under adversarial perturbations.</p>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<button class="back-to-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+  // Active nav link highlighting
+  const sections = document.querySelectorAll('section, .hero');
+  const navLinks = document.querySelectorAll('nav a');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.2 });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Animate bars on scroll
+  const bars = document.querySelectorAll('.bar-fill');
+  const barObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.width = entry.target.style.width;
+      }
+    });
+  }, { threshold: 0.1 });
+  bars.forEach(b => barObserver.observe(b));
+</script>
+</body>
+</html>
