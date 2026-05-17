@@ -9,13 +9,15 @@ const projects = [
     desc:
       "Full-stack MERN e-commerce platform focused on scalable backend systems, optimized APIs, authentication workflows, and performance-driven architecture.",
 
-    status: "Live Project",
+    status: "Live Project - Internship",
 
     live: "https://shopzillapranavkrishna31.netlify.app/",
 
     architecture: "/shopzilla/Shopzilla_InterviewPrep.html",
 
     github: "https://github.com/pranavkrishna31/SHOPZILLA31.git",
+
+    liveBadge: true,
   },
 
   {
@@ -25,11 +27,13 @@ const projects = [
     desc:
       "Machine learning driven autonomous vehicle security pipeline focused on poisoning attacks, anomaly detection, adversarial defense systems, and secure perception validation.",
 
-    status: "Capstone Research",
+    status: "Capstone Research Project",
 
     architecture: "/avs/avs_interview_prep.html",
 
     github: "https://github.com/pranavkrishna31/AV-Security-Data-Poisoning.git",
+
+    liveBadge: true,
   },
 
   {
@@ -46,6 +50,8 @@ const projects = [
     architecture: "#",
 
     github: "#",
+
+    liveBadge: false,
   },
 ];
   const skills = [
@@ -200,7 +206,7 @@ const projects = [
             focused on scalable backend
             engineering, machine learning systems,
             analytics, and security-oriented
-            intelligent applications.
+            applications.
           </p>
 
           <div className="hero-buttons">
@@ -237,8 +243,15 @@ const projects = [
                     {project.status}
                   </p>
 
-                  <h3>{project.title}</h3>
+<h3 className="project-title">
+  {project.title}
 
+  {project.liveBadge && (
+    <span className="live-indicator-title">
+      <span className="live-dot"></span>
+    </span>
+  )}
+</h3>
                   <p className="project-desc">
                     {project.desc}
                   </p>
