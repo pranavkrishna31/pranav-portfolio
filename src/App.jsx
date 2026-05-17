@@ -43,13 +43,13 @@ const projects = [
     desc:
       "Analytics and machine learning based recommendation and demand prediction platform using ranking systems and evaluation metrics.",
 
-    status: "Resources Coming Soon",
+    status: "Architecture Coming Soon",
 
-    live: "#",
+    live: "https://pageforge-bdp.onrender.com",
 
     architecture: "#",
 
-    github: "#",
+    github: "https://github.com/pranavkrishna31/PageForge-BDP.git",
 
     liveBadge: false,
   },
