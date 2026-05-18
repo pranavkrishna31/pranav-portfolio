@@ -2,69 +2,115 @@ import "./App.css";
 
 import { motion } from "framer-motion";
 
+import { useState } from "react";
+
 export default function App() {
-  const projects = [
-    {
-      title:
-        "SHOPZILLA — MERN Stack E-Commerce Platform",
+const projects = [
+  {
+    title:
+      "SHOPZILLA — MERN Stack E-Commerce Platform",
 
-      desc:
-        "Full-stack MERN e-commerce platform focused on scalable backend systems, optimized APIs, authentication workflows, and performance-driven architecture.",
+    desc:
+      "Full-stack MERN e-commerce platform focused on scalable backend systems, optimized APIs, authentication workflows, and performance-driven architecture.",
 
-      status: "Live Project - Internship",
+    status: "Live Project - Internship",
 
-      live:
-        "https://shopzillapranavkrishna31.netlify.app/",
+    live:
+      "https://shopzillapranavkrishna31.netlify.app/",
 
-      architecture:
-        "/shopzilla/Shopzilla_Architecture.html",
+    architecture:
+      "/shopzilla/Shopzilla_Architecture.html",
 
-      github:
-        "https://github.com/pranavkrishna31/SHOPZILLA31.git",
+    github:
+      "https://github.com/pranavkrishna31/SHOPZILLA31.git",
 
-      liveBadge: true,
-    },
+    liveBadge: true,
 
-    {
-      title:
-        "Autonomous Vehicle Security — Data Poisoning Threats to Self-Driving Systems",
+    stack: [
+      "React",
+      "Bootstrap",
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "Node.js",
+      "Express.js",
+      "MongoDB Atlas",
+      "JWT",
+      "bcryptjs",
+      "REST API",
+      "NodeCache",
+      "Postman",
+      "Lighthouse",
+      "Netlify",
+      "Render",
+      "GitHub",
+    ],
+  },
 
-      desc:
-        "Machine learning driven autonomous vehicle security pipeline focused on poisoning attacks, anomaly detection, adversarial defense systems, and secure perception validation.",
+  {
+    title:
+      "Autonomous Vehicle Security — Data Poisoning Threats to Self-Driving Systems",
 
-      status: "Capstone Research Project",
+    desc:
+      "Machine learning driven autonomous vehicle security pipeline focused on poisoning attacks, anomaly detection, adversarial defense systems, and secure perception validation.",
 
-      architecture:
-        "/avs/avs_Architecture.html",
+    status: "Capstone Research Project",
 
-      github:
-        "https://github.com/pranavkrishna31/AV-Security-Data-Poisoning.git",
+    architecture:
+      "/avs/avs_Architecture.html",
 
-      liveBadge: true,
-    },
+    github:
+      "https://github.com/pranavkrishna31/AV-Security-Data-Poisoning.git",
 
-    {
-      title:
-        "PageForge - AI Based Book Demand Predictor(Supply Chain Management System)",
+    liveBadge: true,
 
-      desc:
-        "Analytics and machine learning based recommendation and demand prediction platform using ranking systems and evaluation metrics.",
+    stack: [
+      "Python",
+      "PyTorch",
+      "scikit-learn",
+      "SciPy",
+      "YOLOv8",
+      "ResNet-50",
+      "DeepLab",
+      "CARLA",
+      "GTSRB Dataset",
+      "KITTI",
+      "nuScenes",
+      "Grad-CAM",
+    ],
+  },
 
-      status:
-        "Architecture Coming Soon",
+  {
+    title:
+      "PageForge - AI Based Book Demand Predictor(Supply Chain Management System)",
 
-      live:
-        "https://pageforge-bdp.onrender.com",
+    desc:
+      "Analytics and machine learning based recommendation and demand prediction platform using ranking systems and evaluation metrics.",
 
-      architecture:
-        "/aibdp/pageforge_Architecture.html",
+    status:
+      "Architecture Coming Soon",
 
-      github:
-        "https://github.com/pranavkrishna31/PageForge-BDP.git",
+    live:
+      "https://pageforge-bdp.onrender.com",
 
-      liveBadge: true,
-    },
-  ];
+    architecture:
+      "/aibdp/pageforge_Architecture.html",
+
+    github:
+      "https://github.com/pranavkrishna31/PageForge-BDP.git",
+
+    liveBadge: true,
+
+    stack: [
+      "Python",
+      "Flask",
+      "MongoDB Atlas",
+      "scikit-learn",
+      "pymongo",
+      "TF-IDF",
+    ],
+  },
+];
 
   const skills = [
     {
@@ -187,6 +233,87 @@ export default function App() {
     },
   ];
 
+  const [terminalInput, setTerminalInput] =
+  useState("");
+  
+  const [terminalOutput, setTerminalOutput] =
+  useState(null);
+
+
+const terminalData = {
+
+  shopzilla: {
+    title:
+      "MERN commerce infrastructure engineered for scalable API workflows.",
+
+    details: [
+
+      "→ Reduced average backend response latency to ~245ms after MongoDB query tuning + caching layer integration.",
+
+      "→ Stress-tested JWT authentication pipelines across 100+ sequential login iterations under simulated production load.",
+
+      "→ Improved frontend rendering efficiency using lazy loading + Lighthouse optimization workflows (FCP ~0.6s | LCP ~0.9s).",
+
+      "→ Architected REST-driven commerce flows using React, Express.js, MongoDB Atlas, and Node.js deployment pipelines.",
+
+      "→ Integrated secure RBAC-oriented authentication workflows using bcrypt hashing + JWT session validation.",
+
+      "→ Deployed distributed frontend/backend architecture using Netlify + Render production environments.",
+
+      "→ Built scalable CRUD inventory pipelines optimized for future payment gateway + order lifecycle integration."
+
+    ]
+  },
+
+  avs: {
+    title:
+      "Autonomous vehicle defense research pipeline against adversarial data poisoning threats.",
+
+    details: [
+
+      "→ Simulated high-risk poisoning attacks including label flipping, backdoor injection, adversarial patches, GPS spoofing, and LiDAR manipulation.",
+
+      "→ Increased malicious input detection rate from 15% to nearly 80% using layered anomaly detection and defense orchestration.",
+
+      "→ Reduced autonomous system safety violation probability from 95% to 6.7% during CARLA simulation validation.",
+
+      "→ Engineered multi-stage perception defense workflows using Isolation Forest, STRIP, Neural Cleanse, and PGD hardening strategies.",
+
+      "→ Validated real-time autonomous perception stability using CARLA simulator-based fail-safe decision pipelines.",
+
+      "→ Built secure computer vision workflows using YOLOv8, ResNet-50, DeepLab, and PyTorch inference systems.",
+
+      "→ Evaluated attack resilience using precision, recall, F1-score, ASR, mAP, and false-positive monitoring metrics."
+
+    ]
+  },
+
+  pageforge: {
+    title:
+      "AI-driven recommendation and demand analytics engine for intelligent supply-chain prediction.",
+
+    details: [
+
+      "→ Engineered TF-IDF + cosine similarity recommendation architecture for personalized book discovery pipelines.",
+
+      "→ Built behavioral ranking systems using interaction signals such as purchases, reviews, carts, and user browsing activity.",
+
+      "→ Designed recommendation scoring workflows optimized using Precision@K, Recall@K, CTR, and engagement analytics.",
+
+      "→ Integrated Flask-driven recommendation services with MongoDB interaction tracking pipelines.",
+
+      "→ Developed scalable preprocessing workflows using scikit-learn vectorization + pymongo-based analytics operations.",
+
+      "→ Structured dynamic recommendation generation pipelines capable of real-time personalization delivery.",
+
+      "→ Focused system design around scalable recommendation infrastructure rather than static keyword matching."
+
+    ]
+  }
+
+};
+
+
   return (
     <div className="app premium-app">
       <div className="noise"></div>
@@ -279,10 +406,24 @@ export default function App() {
 
       <motion.div
         className="floating-code code-card-1"
+
+        whileInView={{
+  y: -10,
+}}
+
+whileHover={{
+  rotateY: 8,
+  rotateX: -4,
+  scale: 1.03,
+}}
+
         animate={{
-          y: [0, -18, 0],
-          rotate: [0, 1.5, 0],
-        }}
+  y: [0, -18, 0],
+
+  rotate: [-5, -3, -5],
+
+  x: [0, 8, 0],
+}}
         transition={{
           duration: 6,
           repeat: Infinity,
@@ -333,10 +474,24 @@ export default function App() {
 
       <motion.div
         className="floating-code code-card-2"
+
+        whileInView={{
+  y: -10,
+}}
+
+whileHover={{
+  rotateY: 8,
+  rotateX: -4,
+  scale: 1.03,
+}}
+
         animate={{
-          y: [0, 16, 0],
-          rotate: [0, -1.5, 0],
-        }}
+  y: [0, 16, 0],
+
+  rotate: [5, 3, 5],
+
+  x: [0, -8, 0],
+}}
         transition={{
           duration: 7,
           repeat: Infinity,
@@ -380,10 +535,24 @@ export default function App() {
 
       <motion.div
         className="floating-code code-card-3"
+
+        whileInView={{
+  y: -10,
+}}
+
+whileHover={{
+  rotateY: 8,
+  rotateX: -4,
+  scale: 1.03,
+}}
+
         animate={{
-          y: [0, -14, 0],
-          rotate: [0, 1, 0],
-        }}
+  y: [0, -14, 0],
+
+  rotate: [-2, 1, -2],
+
+  scale: [1, 1.02, 1],
+}}
         transition={{
           duration: 8,
           repeat: Infinity,
@@ -455,59 +624,79 @@ recommended_books =
                       damping: 18,
                     }}
                   >
-                    <p className="project-status">
-                      {project.status}
-                    </p>
+                    <div className="project-content">
 
-                    <h3 className="project-title">
-                      {project.title}
+  <p className="project-status">
+    {project.status}
+  </p>
 
-                      {project.liveBadge && (
-                        <span className="live-indicator-title">
-                          <span className="live-dot"></span>
-                        </span>
-                      )}
-                    </h3>
+  <h3 className="project-title">
+    {project.title}
 
-                    <p className="project-desc">
-                      {project.desc}
-                    </p>
+    {project.liveBadge && (
+      <span className="live-indicator-title">
+        <span className="live-dot"></span>
+      </span>
+    )}
+  </h3>
 
-                    <div className="project-buttons">
-                      {project.live && (
-                        <a
-                          href={
-                            project.live
-                          }
-                          target="_blank"
-                          className="primary-btn"
-                        >
-                          Live Web
-                        </a>
-                      )}
+  <p className="project-desc">
+    {project.desc}
+  </p>
 
-                      {project.architecture && (
-                        <a
-                          href={
-                            project.architecture
-                          }
-                          target="_blank"
-                          className="secondary-btn"
-                        >
-                          Architecture
-                        </a>
-                      )}
+  <div className="project-buttons">
 
-                      <a
-                        href={
-                          project.github
-                        }
-                        target="_blank"
-                        className="secondary-btn"
-                      >
-                        GitHub Repository
-                      </a>
-                    </div>
+    {project.live && (
+      <a
+        href={
+          project.live
+        }
+        target="_blank"
+        className="primary-btn"
+      >
+        Live Web
+      </a>
+    )}
+
+    {project.architecture && (
+      <a
+        href={
+          project.architecture
+        }
+        target="_blank"
+        className="secondary-btn"
+      >
+        Architecture
+      </a>
+    )}
+
+    <a
+      href={
+        project.github
+      }
+      target="_blank"
+      className="secondary-btn"
+    >
+      GitHub Repository
+    </a>
+
+  </div>
+
+</div>
+
+<div className="tech-stack">
+  {project.stack.map(
+    (tech, techIndex) => (
+      <span
+        key={techIndex}
+        className="tech-chip"
+      >
+        {tech}
+      </span>
+    )
+  )}
+</div>
+                    
                   </motion.div>
                 </div>
               )
@@ -550,6 +739,193 @@ recommended_books =
           </div>
         </div>
       </section>
+
+{/* TERMINAL */}
+
+<section className="terminal-section">
+
+  <div className="container-fluid">
+
+    <h2 className="section-title">
+      Engineering Terminal
+    </h2>
+
+    <div className="terminal-window">
+
+      <div className="terminal-topbar">
+
+        <span></span>
+        <span></span>
+        <span></span>
+
+      </div>
+
+      <div className="terminal-body">
+
+       <div className="terminal-console">
+
+  <div className="terminal-output">
+
+<p className="terminal-command">
+  root@portfolio:~$
+  interactive_console_initialized
+</p>
+
+
+    <p className="terminal-command">
+      root@portfolio:~$
+      {terminalInput}
+    </p>
+
+    <br />
+     
+
+ {!terminalOutput && (
+  <div className="terminal-idle">
+
+    <p className="idle-glow">
+      INTERACTIVE ENGINEERING CONSOLE
+    </p>
+
+    <h3 className="idle-title">
+      Explore scalable backend systems,
+      adversarial ML defense pipelines,
+      recommendation architectures,
+      and production engineering workflows.
+    </h3>
+
+    <div className="idle-box">
+
+      <p>
+        ENTER PROJECT ID
+      </p>
+
+      <div className="idle-options">
+
+        <span>[ 1 ] SHOPZILLA</span>
+
+        <span>[ 2 ] AVS CAPSTONE</span>
+
+        <span>[ 3 ] PAGEFORGE</span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
+
+    {terminalOutput && (
+    <motion.div
+      key={terminalOutput.title}
+      initial={{
+        opacity: 0,
+        y: 10,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.35,
+      }}
+    >
+
+      <h3 className="terminal-project-title">
+        {
+        terminalOutput.title
+        }
+      </h3>
+
+      <div className="terminal-metrics">
+
+  {terminalOutput.details.map(
+    (item, index) => (
+
+      <div
+        key={index}
+        className="terminal-line"
+      >
+
+        <span>
+          →
+        </span>
+
+        {item}
+
+      </div>
+
+    )
+  )}
+
+</div>
+
+    </motion.div>
+)}
+
+  </div>
+
+  <div className="terminal-input-row">
+
+
+<span className="terminal-prefix">
+  root@portfolio:~$
+
+  <span className="terminal-cursor">
+    _
+  </span>
+</span>
+
+<input
+  type="text"
+  maxLength="1"
+  className="terminal-input"
+  placeholder="Enter 1 / 2 / 3"
+  value={terminalInput}
+  onChange={(e) => {
+
+    const value = e.target.value;
+
+    setTerminalInput(value);
+
+    if (value === "1") {
+      setTerminalOutput(
+        terminalData.shopzilla
+      );
+    }
+
+    else if (value === "2") {
+      setTerminalOutput(
+        terminalData.avs
+      );
+    }
+
+    else if (value === "3") {
+      setTerminalOutput(
+        terminalData.pageforge
+      );
+    }
+
+    else {
+      setTerminalOutput(null);
+    }
+  }}
+/>
+
+  </div>
+
+</div>
+
+  
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
 
       {/* CONTACT */}
 
