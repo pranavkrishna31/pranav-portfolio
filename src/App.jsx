@@ -13,7 +13,7 @@ const projects = [
 
     live: "https://shopzillapranavkrishna31.netlify.app/",
 
-    architecture: "/shopzilla/Shopzilla_InterviewPrep.html",
+    architecture: "/shopzilla/Shopzilla_Architecture.html",
 
     github: "https://github.com/pranavkrishna31/SHOPZILLA31.git",
 
@@ -29,7 +29,7 @@ const projects = [
 
     status: "Capstone Research Project",
 
-    architecture: "/avs/avs_interview_prep.html",
+    architecture: "/avs/avs_Architecture.html",
 
     github: "https://github.com/pranavkrishna31/AV-Security-Data-Poisoning.git",
 
@@ -47,7 +47,7 @@ const projects = [
 
     live: "https://pageforge-bdp.onrender.com",
 
-    architecture: "/aibdp/pageforge_Interview_prep.html",
+    architecture: "/aibdp/pageforge_Architecture.html",
 
     github: "https://github.com/pranavkrishna31/PageForge-BDP.git",
 
