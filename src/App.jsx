@@ -1,59 +1,71 @@
 import "./App.css";
 
+import { motion } from "framer-motion";
+
 export default function App() {
-const projects = [
-  {
-    title:
-      "SHOPZILLA — MERN Stack E-Commerce Platform",
+  const projects = [
+    {
+      title:
+        "SHOPZILLA — MERN Stack E-Commerce Platform",
 
-    desc:
-      "Full-stack MERN e-commerce platform focused on scalable backend systems, optimized APIs, authentication workflows, and performance-driven architecture.",
+      desc:
+        "Full-stack MERN e-commerce platform focused on scalable backend systems, optimized APIs, authentication workflows, and performance-driven architecture.",
 
-    status: "Live Project - Internship",
+      status: "Live Project - Internship",
 
-    live: "https://shopzillapranavkrishna31.netlify.app/",
+      live:
+        "https://shopzillapranavkrishna31.netlify.app/",
 
-    architecture: "/shopzilla/Shopzilla_Architecture.html",
+      architecture:
+        "/shopzilla/Shopzilla_Architecture.html",
 
-    github: "https://github.com/pranavkrishna31/SHOPZILLA31.git",
+      github:
+        "https://github.com/pranavkrishna31/SHOPZILLA31.git",
 
-    liveBadge: true,
-  },
+      liveBadge: true,
+    },
 
-  {
-    title:
-      "Autonomous Vehicle Security — Data Poisoning Threats to Self-Driving Systems",
+    {
+      title:
+        "Autonomous Vehicle Security — Data Poisoning Threats to Self-Driving Systems",
 
-    desc:
-      "Machine learning driven autonomous vehicle security pipeline focused on poisoning attacks, anomaly detection, adversarial defense systems, and secure perception validation.",
+      desc:
+        "Machine learning driven autonomous vehicle security pipeline focused on poisoning attacks, anomaly detection, adversarial defense systems, and secure perception validation.",
 
-    status: "Capstone Research Project",
+      status: "Capstone Research Project",
 
-    architecture: "/avs/avs_Architecture.html",
+      architecture:
+        "/avs/avs_Architecture.html",
 
-    github: "https://github.com/pranavkrishna31/AV-Security-Data-Poisoning.git",
+      github:
+        "https://github.com/pranavkrishna31/AV-Security-Data-Poisoning.git",
 
-    liveBadge: true,
-  },
+      liveBadge: true,
+    },
 
-  {
-    title:
-      "PageForge - AI Based Book Demand Predictor(Supply Chain Management System)",
+    {
+      title:
+        "PageForge - AI Based Book Demand Predictor(Supply Chain Management System)",
 
-    desc:
-      "Analytics and machine learning based recommendation and demand prediction platform using ranking systems and evaluation metrics.",
+      desc:
+        "Analytics and machine learning based recommendation and demand prediction platform using ranking systems and evaluation metrics.",
 
-    status: "Architecture Coming Soon",
+      status:
+        "Architecture Coming Soon",
 
-    live: "https://pageforge-bdp.onrender.com",
+      live:
+        "https://pageforge-bdp.onrender.com",
 
-    architecture: "/aibdp/pageforge_Architecture.html",
+      architecture:
+        "/aibdp/pageforge_Architecture.html",
 
-    github: "https://github.com/pranavkrishna31/PageForge-BDP.git",
+      github:
+        "https://github.com/pranavkrishna31/PageForge-BDP.git",
 
-    liveBadge: true,
-  },
-];
+      liveBadge: true,
+    },
+  ];
+
   const skills = [
     {
       name: "Java",
@@ -176,50 +188,240 @@ const projects = [
   ];
 
   return (
-    <div className="app">
+    <div className="app premium-app">
+      <div className="noise"></div>
+
+      <div className="orb orb-1"></div>
+
+      <div className="orb orb-2"></div>
+
+      <div className="orb orb-3"></div>
+
       {/* NAVBAR */}
 
       <nav className="navbar-custom">
         <div className="container-fluid">
-          <h1>KONDAPALLI PRANAV KRISHNA</h1>
+          <h1>
+            KONDAPALLI PRANAV KRISHNA
+          </h1>
         </div>
       </nav>
 
-      {/* HERO */}
+{/* HERO */}
 
-      <section className="hero-section">
-        <div className="container-fluid hero-container">
-          <p className="hero-tag">
-            BACKEND DEVELOPMENT • ML • ANALYTICS
-          </p>
+<section className="hero-section">
+  <div className="container-fluid hero-container">
+    <motion.div
+      initial={{
+        opacity: 0,
+        y: 40,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 1,
+      }}
+    >
+      <p className="hero-tag">
+        BACKEND DEVELOPMENT • ML •
+        ANALYTICS
+      </p>
 
-          <h1 className="hero-title">
-            Building
-            <br />
-            <span>digital</span>
-            <br />
-            systems.
-          </h1>
+      <motion.h1
+        className="hero-title"
+        initial={{
+          opacity: 0,
+          y: 80,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        transition={{
+          duration: 1.2,
+        }}
+      >
+        Building
+        <br />
+        <span>digital</span>
+        <br />
+        systems.
+      </motion.h1>
 
-          <p className="hero-desc">
-            Computer Science Engineering student
-            focused on scalable backend
-            engineering, machine learning systems,
-            analytics, and security-oriented
-            applications.
-          </p>
+      <p className="hero-desc">
+        Computer Science Engineering
+        student focused on scalable
+        backend engineering, machine
+        learning systems, analytics,
+        and security-oriented
+        applications.
+      </p>
 
-          <div className="hero-buttons">
-            <a
-              href="/resume.pdf"
-              target="_blank"
-              className="secondary-btn"
-            >
-              View Resume
-            </a>
-          </div>
+      <div className="hero-buttons">
+        <a
+          href="/resume.pdf"
+          target="_blank"
+          className="secondary-btn"
+        >
+          View Resume
+        </a>
+      </div>
+    </motion.div>
+
+    {/* FLOATING SHOWCASE */}
+
+    <div className="floating-showcase">
+
+
+      {/* CODE CARD 1 */}
+
+      <motion.div
+        className="floating-code code-card-1"
+        animate={{
+          y: [0, -18, 0],
+          rotate: [0, 1.5, 0],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div className="code-header">
+          MERN PRODUCT API
         </div>
-      </section>
+
+        <pre>
+    {`router.post('/', async (req, res) => {
+    try {
+    const {
+      name,
+      price,
+      description,
+      image,
+      countInStock
+    } = req.body;
+
+    if (
+      !name ||
+      !price ||
+      !description ||
+      !image
+    ) {
+      return res.status(400).json({
+        message:
+          'All fields are required'
+      });
+    }
+
+    const createdProduct =
+      await product.save();
+
+    res.status(201).json(
+      createdProduct
+    );
+    } catch (error) {
+    res.status(500).json({
+      message: error.message
+    });}});`}
+</pre>
+      </motion.div>
+
+      {/* CODE CARD 2 */}
+
+      <motion.div
+        className="floating-code code-card-2"
+        animate={{
+          y: [0, 16, 0],
+          rotate: [0, -1.5, 0],
+        }}
+        transition={{
+          duration: 7,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div className="code-header">
+          ADVERSARIAL ML SECURITY
+        </div>
+
+      <pre>
+    {`def execute_attack(
+    self,
+    name: str,
+    *args,
+    **kwargs
+     ) -> Any:
+
+    """
+    Execute a specific attack.
+    """
+    attack = self.get_attack(name)
+
+    if attack:
+        return attack.generate(*args,**kwargs)
+
+    logger.error(f"Attack {name} not found.")
+
+    return None
+    
+    def list_attacks(self):
+    return [
+        attack.name
+        for attack
+        in self.attacks
+    ]`}
+</pre>
+      </motion.div>
+
+      {/* CODE CARD 3 */}
+
+      <motion.div
+        className="floating-code code-card-3"
+        animate={{
+          y: [0, -14, 0],
+          rotate: [0, 1, 0],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div className="code-header">
+          AI DEMAND PREDICTION
+        </div>
+
+        <pre>
+{`
+# TF-IDF VECTORIZATION
+
+tfidf = TfidfVectorizer(
+    stop_words='english'
+)
+
+tfidf_matrix =
+    tfidf.fit_transform(corpus)
+
+# COSINE SIMILARITY
+
+similarity_matrix =
+    cosine_similarity(
+        tfidf_matrix,
+        tfidf_matrix
+)
+recommended_books =
+    similarity_matrix.argsort()[
+        ::-1
+    ]`}
+</pre>
+      </motion.div>
+    </div>
+  </div>
+</section>
+
 
       {/* PROJECTS */}
 
@@ -233,61 +435,83 @@ const projects = [
           </h2>
 
           <div className="row g-4">
-            {projects.map((project, index) => (
-              <div
-                className="col-12 col-lg-4"
-                key={index}
-              >
-                <div className="project-card">
-                  <p className="project-status">
-                    {project.status}
-                  </p>
+            {projects.map(
+              (project, index) => (
+                <div
+                  className="col-12 col-lg-4"
+                  key={index}
+                >
+                  <motion.div
+                    className="project-card premium-card"
+                    whileHover={{
+                      y: -18,
+                      rotateX: 6,
+                      rotateY: -6,
+                      scale: 1.02,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 120,
+                      damping: 18,
+                    }}
+                  >
+                    <p className="project-status">
+                      {project.status}
+                    </p>
 
-<h3 className="project-title">
-  {project.title}
+                    <h3 className="project-title">
+                      {project.title}
 
-  {project.liveBadge && (
-    <span className="live-indicator-title">
-      <span className="live-dot"></span>
-    </span>
-  )}
-</h3>
-                  <p className="project-desc">
-                    {project.desc}
-                  </p>
+                      {project.liveBadge && (
+                        <span className="live-indicator-title">
+                          <span className="live-dot"></span>
+                        </span>
+                      )}
+                    </h3>
 
-<div className="project-buttons">
-  {project.live && (
-    <a
-      href={project.live}
-      target="_blank"
-      className="primary-btn"
-    >
-      Live Web
-    </a>
-  )}
+                    <p className="project-desc">
+                      {project.desc}
+                    </p>
 
-  {project.architecture && (
-    <a
-      href={project.architecture}
-      target="_blank"
-      className="secondary-btn"
-    >
-      Architecture
-    </a>
-  )}
+                    <div className="project-buttons">
+                      {project.live && (
+                        <a
+                          href={
+                            project.live
+                          }
+                          target="_blank"
+                          className="primary-btn"
+                        >
+                          Live Web
+                        </a>
+                      )}
 
-  <a
-    href={project.github}
-    target="_blank"
-    className="secondary-btn"
-  >
-    GitHub Repository
-  </a>
-</div>
+                      {project.architecture && (
+                        <a
+                          href={
+                            project.architecture
+                          }
+                          target="_blank"
+                          className="secondary-btn"
+                        >
+                          Architecture
+                        </a>
+                      )}
+
+                      <a
+                        href={
+                          project.github
+                        }
+                        target="_blank"
+                        className="secondary-btn"
+                      >
+                        GitHub Repository
+                      </a>
+                    </div>
+                  </motion.div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       </section>
@@ -301,22 +525,28 @@ const projects = [
           </h2>
 
           <div className="skills-stack">
-            {skills.map((skill, index) => (
-              <div
-                className="skill-card"
-                key={index}
-              >
-                <div className="row align-items-center">
-                  <div className="col-12 col-lg-3">
-                    <h3>{skill.name}</h3>
-                  </div>
+            {skills.map(
+              (skill, index) => (
+                <div
+                  className="skill-card"
+                  key={index}
+                >
+                  <div className="row align-items-center">
+                    <div className="col-12 col-lg-3">
+                      <h3>
+                        {skill.name}
+                      </h3>
+                    </div>
 
-                  <div className="col-12 col-lg-9">
-                    <p>{skill.desc}</p>
+                    <div className="col-12 col-lg-9">
+                      <p>
+                        {skill.desc}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       </section>
@@ -365,8 +595,8 @@ const projects = [
 
       <footer className="footer">
         <p>
-          Designed & Developed by Kondapalli
-          Pranav Krishna
+          Designed & Developed by
+          Kondapalli Pranav Krishna
         </p>
       </footer>
     </div>
