@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PageForge BDP — Project Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #0f0f1a;
+    --surface: #13131f;
+    --surface2: #1a1a2e;
+    --border: rgba(255,255,255,0.07);
+    --accent: #e8c547;
+    --accent2: #5b8dee;
+    --accent3: #e8547a;
+    --text: #e8e6df;
+    --text2: #9a9892;
+    --text3: #5a5856;
+    --green: #4ecb71;
+    --purple: #9b72f5;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'Instrument Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  #sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 100vh;
+    width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+    overflow-y: auto;
+  }
+  #sidebar.open { transform: translateX(0); }
+
+  .sidebar-head {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    color: var(--accent);
+    letter-spacing: 0.01em;
+  }
+  .sidebar-logo span { color: var(--text2); font-style: italic; }
+  .sidebar-tagline {
+    font-size: 0.7rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 4px;
+    font-family: var(--mono);
+  }
+
+  .nav-section-label {
+    font-size: 0.62rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-family: var(--mono);
+    padding: 20px 24px 8px;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 24px;
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 0.86rem;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+  }
+  .nav-link:hover, .nav-link.active {
+    color: var(--text);
+    background: rgba(232,197,71,0.06);
+    border-left-color: var(--accent);
+  }
+  .nav-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--text3);
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+  .nav-link:hover .nav-dot, .nav-link.active .nav-dot { background: var(--accent); }
+
+  /* ── HAMBURGER ── */
+  #menu-btn {
+    position: fixed;
+    top: 20px; left: 20px;
+    z-index: 200;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 5px;
+    transition: background 0.2s;
+  }
+  #menu-btn:hover { background: var(--surface2); }
+  .bar {
+    width: 20px; height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: all 0.3s;
+  }
+  #menu-btn.open .bar:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+  #menu-btn.open .bar:nth-child(2) { opacity: 0; }
+  #menu-btn.open .bar:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+  #overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 90;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #overlay.visible { opacity: 1; pointer-events: all; }
+
+  /* ── MAIN CONTENT ── */
+  main {
+    padding: 0 0 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 64px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(232,197,71,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -100px; left: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(91,141,238,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-label::before {
+    content: '';
+    width: 32px; height: 1px;
+    background: var(--accent);
+  }
+
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .hero-title em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--text2);
+    max-width: 560px;
+    margin-bottom: 48px;
+    line-height: 1.8;
+  }
+
+  .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .badge {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    letter-spacing: 0.04em;
+  }
+  .badge.yellow { border-color: rgba(232,197,71,0.3); color: var(--accent); background: rgba(232,197,71,0.06); }
+  .badge.blue { border-color: rgba(91,141,238,0.3); color: var(--accent2); background: rgba(91,141,238,0.06); }
+  .badge.pink { border-color: rgba(232,84,122,0.3); color: var(--accent3); background: rgba(232,84,122,0.06); }
+  .badge.green { border-color: rgba(78,203,113,0.3); color: var(--green); background: rgba(78,203,113,0.06); }
+  .badge.purple { border-color: rgba(155,114,245,0.3); color: var(--purple); background: rgba(155,114,245,0.06); }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px; left: 64px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .scroll-hint::after {
+    content: '';
+    width: 48px; height: 1px;
+    background: var(--text3);
+    animation: pulse-line 2s ease-in-out infinite;
+  }
+  @keyframes pulse-line { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* ── SECTIONS ── */
+  .doc-section {
+    padding: 100px 64px;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+  .doc-section:nth-child(even) { background: rgba(255,255,255,0.012); }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 48px;
+    margin-bottom: 64px;
+  }
+  .section-num {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    padding-top: 6px;
+    flex-shrink: 0;
+    width: 32px;
+  }
+  .section-title-wrap { flex: 1; }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 16px;
+  }
+  .section-intro {
+    font-size: 1rem;
+    color: var(--text2);
+    max-width: 620px;
+    line-height: 1.85;
+  }
+
+  /* ── CONTENT GRID ── */
+  .content-grid { display: grid; gap: 20px; }
+  .content-grid.two { grid-template-columns: repeat(2, 1fr); }
+  .content-grid.three { grid-template-columns: repeat(3, 1fr); }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .card:hover { border-color: rgba(255,255,255,0.12); }
+  .card-glow {
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover .card-glow { opacity: 1; }
+  .card-glow.yellow { background: radial-gradient(circle, rgba(232,197,71,0.1) 0%, transparent 70%); }
+  .card-glow.blue { background: radial-gradient(circle, rgba(91,141,238,0.1) 0%, transparent 70%); }
+  .card-glow.pink { background: radial-gradient(circle, rgba(232,84,122,0.1) 0%, transparent 70%); }
+  .card-glow.green { background: radial-gradient(circle, rgba(78,203,113,0.1) 0%, transparent 70%); }
+  .card-glow.purple { background: radial-gradient(circle, rgba(155,114,245,0.1) 0%, transparent 70%); }
+
+  .card-icon {
+    font-size: 1.6rem;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .card-body {
+    font-size: 0.9rem;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+
+  /* ── FORMULA BLOCK ── */
+  .formula-block {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-family: var(--mono);
+    font-size: 0.88rem;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+  .formula-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    margin-bottom: 8px;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #080810;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  .code-block .kw { color: #9b72f5; }
+  .code-block .fn { color: #5b8dee; }
+  .code-block .str { color: #4ecb71; }
+  .code-block .cm { color: #3a3a5a; }
+  .code-block .num { color: var(--accent); }
+
+  /* ── METRICS CARD ── */
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .metric-accent-line {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .metric-accent-line.yellow { background: linear-gradient(90deg, var(--accent), transparent); }
+  .metric-accent-line.blue { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .metric-accent-line.pink { background: linear-gradient(90deg, var(--accent3), transparent); }
+
+  .metric-tag {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 12px;
+    padding: 4px 10px;
+    border-radius: 100px;
+    display: inline-block;
+  }
+  .metric-tag.yellow { color: var(--accent); background: rgba(232,197,71,0.1); }
+  .metric-tag.blue { color: var(--accent2); background: rgba(91,141,238,0.1); }
+  .metric-tag.pink { color: var(--accent3); background: rgba(232,84,122,0.1); }
+
+  .metric-name {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .metric-desc {
+    font-size: 0.92rem;
+    color: var(--text2);
+    line-height: 1.85;
+    margin-bottom: 20px;
+  }
+  .metric-example {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-size: 0.85rem;
+    color: var(--text2);
+    margin-top: 16px;
+    line-height: 1.7;
+  }
+  .metric-example strong { color: var(--text); }
+
+  /* ── WEIGHT TABLE ── */
+  .weight-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+  }
+  .weight-table th {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 10px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .weight-table td {
+    padding: 12px 16px;
+    font-size: 0.88rem;
+    color: var(--text2);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .weight-table tr:last-child td { border-bottom: none; }
+  .weight-table td:first-child { color: var(--text); font-weight: 500; }
+  .weight-num {
+    font-family: var(--mono);
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .weight-num.w1 { color: var(--text2); }
+  .weight-num.w4 { color: var(--accent2); }
+  .weight-num.w5 { color: var(--purple); }
+  .weight-num.w8 { color: var(--accent); }
+
+  /* ── DB COLLECTION ── */
+  .db-collection {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .db-coll-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+  .db-coll-icon { font-size: 1rem; }
+  .db-coll-name {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--green);
+  }
+  .db-coll-count {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text3);
+  }
+  .db-fields { padding: 16px 20px; }
+  .db-field {
+    display: flex;
+    gap: 12px;
+    padding: 6px 0;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .db-field:last-child { border-bottom: none; }
+  .db-field-name {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--accent2);
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+  .db-field-desc {
+    font-size: 0.8rem;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .db-field-type {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--purple);
+    min-width: 60px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  /* ── TECH STACK ── */
+  .tech-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: border-color 0.2s;
+  }
+  .tech-item:hover { border-color: rgba(255,255,255,0.12); }
+  .tech-logo {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .tech-logo.flask { background: rgba(255,255,255,0.06); }
+  .tech-logo.mongo { background: rgba(78,203,113,0.1); }
+  .tech-logo.sklearn { background: rgba(91,141,238,0.1); }
+  .tech-logo.jinja { background: rgba(232,197,71,0.1); }
+  .tech-logo.python { background: rgba(155,114,245,0.1); }
+  .tech-logo.js { background: rgba(232,197,71,0.08); }
+
+  .tech-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .tech-desc {
+    font-size: 0.84rem;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+  .tech-pill {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    padding: 2px 8px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text3);
+    margin-top: 6px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── FLOW STEPS ── */
+  .flow-steps { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex;
+    gap: 24px;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 48px;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+  .flow-num {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+  .flow-content {
+    padding: 8px 0 40px;
+    flex: 1;
+  }
+  .flow-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .flow-desc {
+    font-size: 0.88rem;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+
+  /* ── FILE TREE ── */
+  .file-tree {
+    background: #080810;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    line-height: 2;
+  }
+  .ft-root { color: var(--accent); }
+  .ft-dir { color: var(--accent2); }
+  .ft-file { color: var(--text2); }
+  .ft-file.py { color: var(--purple); }
+  .ft-file.html { color: var(--accent3); }
+  .ft-file.js { color: var(--accent); }
+  .ft-file.css { color: var(--accent2); }
+  .ft-file.env { color: var(--text3); }
+  .ft-indent { padding-left: 20px; }
+  .ft-indent2 { padding-left: 40px; }
+  .ft-indent3 { padding-left: 60px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 40px 0;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: rgba(232,197,71,0.05);
+    border: 1px solid rgba(232,197,71,0.15);
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-size: 0.88rem;
+    color: var(--text2);
+    line-height: 1.75;
+    margin: 20px 0;
+  }
+  .callout strong { color: var(--accent); }
+  .callout.blue {
+    background: rgba(91,141,238,0.05);
+    border-color: rgba(91,141,238,0.15);
+  }
+  .callout.blue strong { color: var(--accent2); }
+  .callout.green {
+    background: rgba(78,203,113,0.05);
+    border-color: rgba(78,203,113,0.15);
+  }
+  .callout.green strong { color: var(--green); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px 64px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    position: relative;
+    z-index: 1;
+  }
+  .footer-logo {
+    font-family: var(--serif);
+    font-size: 1.4rem;
+    color: var(--accent);
+  }
+  .footer-logo span { color: var(--text2); font-style: italic; }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+  }
+  .footer-link {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent2);
+    text-decoration: none;
+    letter-spacing: 0.06em;
+  }
+  .footer-link:hover { text-decoration: underline; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero { padding: 100px 24px 80px; }
+    .doc-section { padding: 72px 24px; }
+    .content-grid.two, .content-grid.three { grid-template-columns: 1fr; }
+    .section-header { flex-direction: column; gap: 12px; }
+    footer { flex-direction: column; gap: 16px; text-align: center; }
+    .scroll-hint { left: 24px; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-label { animation: fadeUp 0.6s ease both; }
+  .hero-title { animation: fadeUp 0.6s 0.1s ease both; }
+  .hero-sub { animation: fadeUp 0.6s 0.2s ease both; }
+  .hero-badges { animation: fadeUp 0.6s 0.3s ease both; }
+</style>
+</head>
+<body>
+
+<!-- HAMBURGER -->
+<button id="menu-btn" onclick="toggleMenu()" aria-label="Open navigation">
+  <div class="bar"></div>
+  <div class="bar"></div>
+  <div class="bar"></div>
+</button>
+
+<!-- OVERLAY -->
+<div id="overlay" onclick="toggleMenu()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-head">
+    <div class="sidebar-logo">Page<span>Forge</span> BDP</div>
+    <div class="sidebar-tagline">Project Documentation</div>
+  </div>
+
+  <div class="nav-section-label">Overview</div>
+  <a href="#hero" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Introduction</a>
+  <a href="#architecture" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> System Architecture</a>
+  <a href="#techstack" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Tech Stack</a>
+
+  <div class="nav-section-label">Recommendation Engine</div>
+  <a href="#tfidf" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> TF-IDF Vectorization</a>
+  <a href="#cosine" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Cosine Similarity</a>
+  <a href="#content-filtering" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Content-Based Filtering</a>
+  <a href="#behavioral" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Behavioral Weighting</a>
+
+  <div class="nav-section-label">Metrics</div>
+  <a href="#precision" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Precision@K</a>
+  <a href="#recall" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Recall@K</a>
+  <a href="#ctr" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Click-Through Rate (CTR)</a>
+
+  <div class="nav-section-label">Data Layer</div>
+  <a href="#database" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> MongoDB Collections</a>
+  <a href="#interactions" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Interaction Tracking</a>
+
+  <div class="nav-section-label">Application</div>
+  <a href="#userflow" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> User Flow</a>
+  <a href="#adminflow" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Admin Dashboard</a>
+  <a href="#structure" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Project Structure</a>
+  <a href="#security" class="nav-link" onclick="closeSidebar()"><div class="nav-dot"></div> Security</a>
+</nav>
+
+<!-- MAIN -->
+<main>
+
+  <!-- ── HERO ── -->
+  <section class="hero" id="hero">
+    <div class="hero-label">Project Documentation</div>
+    <h1 class="hero-title">Page<em>Forge</em><br>BDP</h1>
+    <p class="hero-sub">
+      An intelligent, personalized book recommendation platform combining behavioral analytics, 
+      TF-IDF vectorization, and cosine similarity to surface the right books for every reader.
+    </p>
+    <div class="hero-badges">
+      <span class="badge yellow">Flask · Python</span>
+      <span class="badge green">MongoDB Atlas</span>
+      <span class="badge blue">Scikit-learn</span>
+      <span class="badge pink">TF-IDF · Cosine Similarity</span>
+      <span class="badge purple">Precision@K · Recall@K · CTR</span>
+    </div>
+    <div class="scroll-hint">Scroll to explore</div>
+  </section>
+
+  <!-- ── ARCHITECTURE ── -->
+  <section class="doc-section" id="architecture">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title-wrap">
+        <div class="section-label">System Design</div>
+        <h2 class="section-title">How PageForge Works</h2>
+        <p class="section-intro">
+          PageForge is a full-stack web application built with a hybrid recommendation architecture. 
+          It blends content understanding with behavioral signals to give users book suggestions that 
+          actually match their reading habits — not just their profile.
+        </p>
+      </div>
+    </div>
+
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <div class="flow-title">User Logs In</div>
+          <div class="flow-desc">The user registers or logs in. Their session is stored server-side using Flask's session management. From this point, every interaction they have with the platform is silently tracked in MongoDB.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <div class="flow-title">Interactions Are Recorded</div>
+          <div class="flow-desc">Whenever a user views a book detail page, adds a book to their cart, writes a review, or completes a purchase — an event is logged to the <code style="font-family:var(--mono);color:var(--green)">user_interactions</code> collection with the username, book ID, interaction type, and a timestamp.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content">
+          <div class="flow-title">Content Vectors Are Built</div>
+          <div class="flow-desc">All 100 books in the database are converted into text strings combining their title, author, genre, and description. These strings are fed into a TF-IDF vectorizer to create a numerical fingerprint for each book.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-content">
+          <div class="flow-title">Similarity Is Computed</div>
+          <div class="flow-desc">Cosine similarity is computed across all book vectors, producing a 100×100 similarity matrix. Every book now has a scored relationship with every other book based on content.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-content">
+          <div class="flow-title">Behavioral Weights Are Applied</div>
+          <div class="flow-desc">For each of the user's past interactions, the system looks up similar books in the matrix and multiplies that similarity score by the interaction weight (view = 1, review = 4, cart = 5, purchase = 8). Scores accumulate across all interactions.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-content">
+          <div class="flow-title">Top Recommendations Are Served</div>
+          <div class="flow-desc">Books are sorted by their final weighted score. The top 5 are returned as personalized recommendations. If the user has no interaction history, the top-rated books act as a fallback.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TECH STACK ── -->
+  <section class="doc-section" id="techstack">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Technologies Used</div>
+        <h2 class="section-title">The Tech Stack</h2>
+        <p class="section-intro">
+          PageForge is deliberately lean — each technology chosen serves a clear purpose. 
+          No unnecessary complexity, every tool earns its place.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div class="tech-item">
+        <div class="tech-logo flask">🐍</div>
+        <div>
+          <div class="tech-title">Flask (Python)</div>
+          <div class="tech-desc">The web framework powering all routes, session management, form handling, and template rendering. Flask's lightweight nature makes it ideal for a focused recommendation system without overhead. Every page — user, admin, cart, checkout, orders — is a Flask route in <code style="font-family:var(--mono);color:var(--purple)">app.py</code>.</div>
+          <span class="tech-pill">Backend · Routing · Sessions</span>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo mongo">🍃</div>
+        <div>
+          <div class="tech-title">MongoDB Atlas</div>
+          <div class="tech-desc">A cloud-hosted NoSQL database storing all books, users, orders, reviews, interactions, and contact queries. MongoDB's flexible document model allows storing nested book data inside orders without complex joins. Accessed through PyMongo in Python.</div>
+          <span class="tech-pill">Database · Cloud · NoSQL</span>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo sklearn">🔬</div>
+        <div>
+          <div class="tech-title">Scikit-learn</div>
+          <div class="tech-desc">The machine learning library used for two core operations: <strong style="color:var(--text)">TfidfVectorizer</strong> (converts book text into numerical vectors) and <strong style="color:var(--text)">cosine_similarity</strong> (measures how similar two books are based on their vectors). This is the mathematical heart of the recommendation engine.</div>
+          <span class="tech-pill">ML · TF-IDF · Cosine Similarity</span>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo jinja">🧩</div>
+        <div>
+          <div class="tech-title">Jinja2 Templates</div>
+          <div class="tech-desc">Flask's built-in templating engine. Python data (books, recommendations, metrics) is injected directly into HTML templates using <code style="font-family:var(--mono);color:var(--accent)">{{ variable }}</code> syntax. The admin dashboard, book cards, and user pages are all dynamically rendered via Jinja2 from a base template.</div>
+          <span class="tech-pill">Frontend · Templating</span>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo js">⚡</div>
+        <div>
+          <div class="tech-title">JavaScript (Vanilla + Chart.js)</div>
+          <div class="tech-desc">Handles AJAX cart operations (so adding a book doesn't reload the page), toast notifications, and the sales analytics bar chart in the admin dashboard. Chart.js renders the 30-day top sellers visualization. Admin stock and sale updates are also done via async fetch calls.</div>
+          <span class="tech-pill">Frontend · AJAX · Charts</span>
+        </div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-logo python">📦</div>
+        <div>
+          <div class="tech-title">Python-dotenv + Gunicorn</div>
+          <div class="tech-desc"><strong style="color:var(--text)">python-dotenv</strong> loads environment variables from a <code style="font-family:var(--mono);color:var(--accent3)">.env</code> file so credentials like the MongoDB URI and Flask secret key are never hardcoded. <strong style="color:var(--text)">Gunicorn</strong> is the production-grade WSGI server that serves the Flask app in deployment environments.</div>
+          <span class="tech-pill">Config · Deployment</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TF-IDF ── -->
+  <section class="doc-section" id="tfidf">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Recommendation Engine · Module 1</div>
+        <h2 class="section-title">TF-IDF Vectorization</h2>
+        <p class="section-intro">
+          The foundation of content-based recommendation. TF-IDF converts text descriptions of books into numerical 
+          vectors that a computer can compare mathematically.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div>
+        <div class="card">
+          <div class="card-glow yellow"></div>
+          <div class="card-icon">📖</div>
+          <div class="card-title">What is TF-IDF?</div>
+          <div class="card-body">
+            <strong style="color:var(--text)">TF-IDF</strong> stands for <em>Term Frequency–Inverse Document Frequency</em>. 
+            It's a statistical method that measures how important a word is to a document relative to a collection of documents.<br><br>
+            Think of it this way: the word <em>"the"</em> appears in every book description — it tells us nothing useful. 
+            But the word <em>"dystopian"</em> or <em>"necromancer"</em> only appears in a few books. 
+            TF-IDF gives high scores to rare, specific words and low scores to common, generic ones.
+          </div>
+        </div>
+
+        <div style="margin-top:20px">
+          <div class="formula-label">Term Frequency</div>
+          <div class="formula-block">TF(t, d) = (Number of times term t appears in document d) / (Total terms in document d)</div>
+          <div class="formula-label" style="margin-top:16px">Inverse Document Frequency</div>
+          <div class="formula-block">IDF(t) = log( Total Documents / Documents containing term t )</div>
+          <div class="formula-label" style="margin-top:16px">Combined Score</div>
+          <div class="formula-block">TF-IDF(t, d) = TF(t, d) × IDF(t)</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="callout blue">
+          <strong>How PageForge uses it:</strong> Each book's title, author, genre, and description are concatenated into a single text string (the "corpus"). The <code style="font-family:var(--mono)">TfidfVectorizer(stop_words='english')</code> from Scikit-learn processes all 100 book strings simultaneously, removing common English words like "the", "is", "and" before computing scores.
+        </div>
+
+        <div class="code-block" style="margin-top:20px">
+<span class="cm"># Build the text corpus — one string per book</span>
+<span class="kw">for</span> book <span class="kw">in</span> all_books:
+    text = <span class="str">f"""
+    {book.get(<span class="str">'Title'</span>, '')}
+    {book.get(<span class="str">'Author'</span>, '')}
+    {book.get(<span class="str">'Genre'</span>, '')}
+    {book.get(<span class="str">'Description'</span>, '')}
+    """</span>
+    corpus.append(text)
+
+<span class="cm"># Vectorize — convert text to numbers</span>
+tfidf = <span class="fn">TfidfVectorizer</span>(stop_words=<span class="str">'english'</span>)
+tfidf_matrix = tfidf.<span class="fn">fit_transform</span>(corpus)
+        </div>
+
+        <div class="metric-example">
+          <strong>Example:</strong> A book described as "A science fiction epic about space exploration and AI consciousness" would get high TF-IDF scores for "science fiction", "space exploration", "AI", and "consciousness" — and near-zero for common words like "about" or "and". These scores form its unique numerical identity.
+        </div>
+
+        <div class="callout" style="margin-top:16px">
+          <strong>Output:</strong> A matrix of shape <code style="font-family:var(--mono)">(100 books × N unique words)</code>, where each row is a book's TF-IDF vector — its mathematical fingerprint.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COSINE SIMILARITY ── -->
+  <section class="doc-section" id="cosine">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Recommendation Engine · Module 2</div>
+        <h2 class="section-title">Cosine Similarity</h2>
+        <p class="section-intro">
+          Once every book has a TF-IDF vector, cosine similarity measures how "close" two books are 
+          in meaning — the smaller the angle between two vectors, the more similar the books.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div>
+        <div class="card">
+          <div class="card-glow blue"></div>
+          <div class="card-icon">📐</div>
+          <div class="card-title">What is Cosine Similarity?</div>
+          <div class="card-body">
+            Imagine each book as an arrow pointing in a direction in a high-dimensional space — where each dimension represents a unique word. Two books pointing in almost the same direction (small angle between them) are <em>similar</em>. Two books pointing in completely different directions (90° apart) are <em>unrelated</em>.<br><br>
+            Cosine similarity calculates the cosine of the angle between two vectors. A score of <strong style="color:var(--green)">1.0</strong> means identical, <strong style="color:var(--accent)">0.5</strong> means moderately similar, and <strong style="color:var(--text3)">0.0</strong> means no shared themes at all.
+          </div>
+        </div>
+
+        <div style="margin-top:20px">
+          <div class="formula-label">Cosine Similarity Formula</div>
+          <div class="formula-block">cos(θ) = (A · B) / (|A| × |B|)</div>
+          <div style="font-size:0.82rem;color:var(--text2);margin-top:12px;line-height:1.7">
+            Where <strong style="color:var(--text)">A · B</strong> is the dot product (how much vectors overlap) and <strong style="color:var(--text)">|A| × |B|</strong> normalizes for vector length, ensuring longer descriptions don't unfairly dominate shorter ones.
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="code-block">
+<span class="cm"># Compute pairwise similarity across all books</span>
+similarity_matrix = <span class="fn">cosine_similarity</span>(
+    tfidf_matrix,
+    tfidf_matrix
+)
+<span class="cm"># Result: 100×100 matrix
+# similarity_matrix[i][j] = similarity score between book i and book j
+# Always 1.0 on the diagonal (a book vs itself)</span>
+        </div>
+
+        <div class="metric-example" style="margin-top:20px">
+          <strong>Practical example:</strong> Book 12 is "1984" (dystopian political fiction). Book 47 is "Brave New World" (also dystopian). Their TF-IDF vectors both score high for words like "dystopian", "society", "control", "future" — so cosine similarity returns ~0.8 (very similar). Compare this to "Pride and Prejudice" (romance/manners) which would score ~0.05 against "1984".
+        </div>
+
+        <div class="callout blue" style="margin-top:20px">
+          <strong>Output:</strong> A 100×100 symmetric matrix. Each cell contains a score between 0 and 1 representing textual similarity between two books. This matrix is the core lookup table used during recommendation generation.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTENT-BASED FILTERING ── -->
+  <section class="doc-section" id="content-filtering">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Recommendation Engine · Module 3</div>
+        <h2 class="section-title">Content-Based Filtering</h2>
+        <p class="section-intro">
+          Content-based filtering recommends items based on the properties of items the user has 
+          already interacted with — not on what other users did.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div>
+        <div class="card">
+          <div class="card-glow purple"></div>
+          <div class="card-icon">🧠</div>
+          <div class="card-title">What is Content-Based Filtering?</div>
+          <div class="card-body">
+            If you enjoyed a detective novel, a content-based system asks: <em>"What other books share similar characteristics — same genre, similar themes, same author style?"</em> It looks at the properties (content) of items, not the crowd's behavior.<br><br>
+            In PageForge, the "content" of a book is its <strong style="color:var(--text)">title + author + genre + description</strong> — all captured in the TF-IDF vector. The system finds books with the highest cosine similarity to books the user has already engaged with.
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top:20px">
+          <strong>Key advantage:</strong> Works well even for new users with limited history, and doesn't require knowing what other users are reading. It's entirely based on the book's own metadata.
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-glow green"></div>
+          <div class="card-icon">🔄</div>
+          <div class="card-title">How It Works in PageForge</div>
+          <div class="card-body">
+            For each book the user has interacted with (viewed, carted, reviewed, purchased), the system:<br><br>
+            1. Finds that book's index in the <code style="font-family:var(--mono);color:var(--green)">all_books</code> list<br>
+            2. Looks up its row in the similarity matrix<br>
+            3. Gets similarity scores against every other book<br>
+            4. Multiplies those scores by the interaction weight<br>
+            5. Adds to a running <code style="font-family:var(--mono);color:var(--accent)">weighted_scores</code> dictionary<br><br>
+            The books that accumulate the highest total weighted scores across all of the user's past interactions become the final recommendations.
+          </div>
+        </div>
+
+        <div class="metric-example" style="margin-top:20px">
+          <strong>Fallback behavior:</strong> If a new user has no interactions yet, the system falls back to recommending the top-5 highest-rated books — ensuring recommendations are always meaningful even on the first visit.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── BEHAVIORAL WEIGHTING ── -->
+  <section class="doc-section" id="behavioral">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Recommendation Engine · Module 4</div>
+        <h2 class="section-title">Multi-Signal Behavioral Weighting</h2>
+        <p class="section-intro">
+          Not all user interactions are equal. Buying a book is a much stronger signal of interest than 
+          merely glancing at it. PageForge assigns different weights to each type of interaction to make 
+          recommendations progressively smarter.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div style="padding:24px 32px 16px">
+            <div class="card-icon">⚖️</div>
+            <div class="card-title">Interaction Weight Table</div>
+            <div class="card-body" style="margin-bottom:12px">Each action contributes a different weight to the recommendation score. Higher-intent actions carry more influence.</div>
+          </div>
+          <table class="weight-table">
+            <thead>
+              <tr>
+                <th>Interaction</th>
+                <th>Weight</th>
+                <th>Why this weight?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>👁 View (Detail Page)</td>
+                <td><span class="weight-num w1">1</span></td>
+                <td style="font-size:0.82rem;color:var(--text2)">Browsing is passive — low intent signal</td>
+              </tr>
+              <tr>
+                <td>⭐ Review / Rating</td>
+                <td><span class="weight-num w4">4</span></td>
+                <td style="font-size:0.82rem;color:var(--text2)">Writing a review means real engagement</td>
+              </tr>
+              <tr>
+                <td>🛒 Cart Addition</td>
+                <td><span class="weight-num w5">5</span></td>
+                <td style="font-size:0.82rem;color:var(--text2)">Adding to cart shows purchase intent</td>
+              </tr>
+              <tr>
+                <td>💳 Purchase</td>
+                <td><span class="weight-num w8">8</span></td>
+                <td style="font-size:0.82rem;color:var(--text2)">The strongest possible interest signal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-glow yellow"></div>
+          <div class="card-icon">💡</div>
+          <div class="card-title">Rating Boost for Reviews</div>
+          <div class="card-body">
+            Reviews carry an extra bonus. If a user gave a book 5 stars, the weight becomes <code style="font-family:var(--mono);color:var(--accent)">4 + 5 = 9</code>. 
+            If they gave 2 stars, it becomes <code style="font-family:var(--mono);color:var(--accent)">4 + 2 = 6</code>. 
+            This means highly-rated books influence recommendations more strongly than poorly-rated ones — 
+            making the system sensitive to the user's actual preferences, not just their activity.
+          </div>
+        </div>
+
+        <div class="code-block" style="margin-top:20px">
+<span class="cm"># Extra boost: add rating value to review weight</span>
+<span class="kw">if</span> interaction_type == <span class="str">"review"</span>:
+    rating_value = interaction.get(
+        <span class="str">"InteractionValue"</span>, <span class="num">0</span>
+    )
+    weight += rating_value  <span class="cm"># e.g., 4 + 5 = 9</span>
+
+<span class="cm"># Multiply similarity score by behavioral weight</span>
+weighted_scores[candidate_id] = (
+    weighted_scores.get(candidate_id, <span class="num">0</span>)
+    + (similarity_score * weight)
+)
+        </div>
+
+        <div class="metric-example" style="margin-top:16px">
+          <strong>Result:</strong> A book you purchased and a book you rated 5 stars will generate much stronger "gravitational pull" on similar books in the recommendation engine than a book you merely glanced at.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PRECISION@K ── -->
+  <section class="doc-section" id="precision">
+    <div class="section-header">
+      <div class="section-num">07</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Evaluation Metrics · Module 1</div>
+        <h2 class="section-title">Precision@K</h2>
+        <p class="section-intro">
+          A metric that tells you: of the K books we recommended, how many were actually relevant to the user?
+          It measures the <em>quality</em> of recommendations.
+        </p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-accent-line yellow"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+        <div>
+          <div class="metric-tag yellow">Precision@K</div>
+          <div class="metric-name">How accurate are our recommendations?</div>
+          <div class="metric-desc">
+            <strong>K</strong> is the number of recommendations shown (in PageForge, K = 5). 
+            <strong>Relevant books</strong> are those the user has actually purchased — we treat purchase history as ground truth for what the user truly wanted.<br><br>
+            Precision@K asks: <em>"Out of the 5 books we recommended, how many did the user actually end up buying or would have wanted?"</em> A score of 100% means all 5 recommendations were spot-on. A score of 40% means 2 out of 5 were relevant.
+          </div>
+          <div class="formula-label">Formula</div>
+          <div class="formula-block">Precision@K = (Relevant Books in Top-K) ÷ K</div>
+        </div>
+        <div>
+          <div class="metric-example">
+            <strong>Worked example:</strong><br><br>
+            K = 5 (we show 5 recommendations)<br>
+            Recommended: [Book A, Book B, Book C, Book D, Book E]<br>
+            User's purchased books (relevant): [Book A, Book C, Book F, Book G]<br><br>
+            Hits = 2 (Book A and Book C are in both lists)<br>
+            <strong>Precision@5 = 2 / 5 = 0.40 → 40%</strong><br><br>
+            This means 40% of what we showed was genuinely useful to the user.
+          </div>
+          <div class="code-block" style="margin-top:20px">
+<span class="kw">def</span> <span class="fn">precision_at_k</span>(recommended, relevant, k):
+    recommended_at_k = recommended[:k]
+    hits = <span class="fn">sum</span>(
+        <span class="num">1</span> <span class="kw">for</span> book_id <span class="kw">in</span> recommended_at_k
+        <span class="kw">if</span> book_id <span class="kw">in</span> relevant
+    )
+    <span class="kw">return</span> hits / k <span class="kw">if</span> k > <span class="num">0</span> <span class="kw">else</span> <span class="num">0</span>
+          </div>
+          <div class="callout" style="margin-top:16px">
+            <strong>In the admin dashboard:</strong> This value is shown as a percentage (multiplied by 100 and rounded to 2 decimals). It gives the admin a live view of how accurate the recommendation engine currently is.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── RECALL@K ── -->
+  <section class="doc-section" id="recall">
+    <div class="section-header">
+      <div class="section-num">08</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Evaluation Metrics · Module 2</div>
+        <h2 class="section-title">Recall@K</h2>
+        <p class="section-intro">
+          Where Precision measures accuracy, Recall measures coverage. It asks: of all the books the user 
+          would have liked, how many did we actually surface in our recommendations?
+        </p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-accent-line blue"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+        <div>
+          <div class="metric-tag blue">Recall@K</div>
+          <div class="metric-name">How much did we cover?</div>
+          <div class="metric-desc">
+            Recall@K measures the <strong>completeness</strong> of recommendations. Even if all 5 recommendations are perfect (Precision = 100%), if the user actually liked 20 books and we only found 5, our recall is 25%.<br><br>
+            In PageForge, "relevant books" are all books that appear in any user's purchase history. "Recommended books" are the top 5 generated by weighted behavioral scores. Recall tells the admin how much of the universe of relevant books the engine is successfully discovering.
+          </div>
+          <div class="formula-label">Formula</div>
+          <div class="formula-block">Recall@K = (Relevant Books in Top-K) ÷ Total Relevant Books</div>
+        </div>
+        <div>
+          <div class="metric-example">
+            <strong>Worked example:</strong><br><br>
+            K = 5 (showing 5 recommendations)<br>
+            Recommended: [Book A, Book B, Book C, Book D, Book E]<br>
+            All relevant books ever purchased: [Book A, Book C, Book F, Book G, Book H, Book J, Book K, Book L]<br><br>
+            Hits = 2 (Book A and Book C)<br>
+            Total relevant = 8<br>
+            <strong>Recall@5 = 2 / 8 = 0.25 → 25%</strong><br><br>
+            We found 2 out of 8 relevant books. Good Precision, lower Recall.
+          </div>
+          <div class="code-block" style="margin-top:20px">
+<span class="kw">def</span> <span class="fn">recall_at_k</span>(recommended, relevant, k):
+    recommended_at_k = recommended[:k]
+    hits = <span class="fn">sum</span>(
+        <span class="num">1</span> <span class="kw">for</span> book_id <span class="kw">in</span> recommended_at_k
+        <span class="kw">if</span> book_id <span class="kw">in</span> relevant
+    )
+    <span class="kw">return</span> hits / <span class="fn">len</span>(relevant) <span class="kw">if</span> relevant <span class="kw">else</span> <span class="num">0</span>
+          </div>
+          <div class="callout blue" style="margin-top:16px">
+            <strong>Precision vs Recall tradeoff:</strong> There's always a tension. Showing more recommendations (larger K) usually improves Recall but can hurt Precision. PageForge uses K=5 — a small, precise recommendation set prioritizing quality over coverage.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTR ── -->
+  <section class="doc-section" id="ctr">
+    <div class="section-header">
+      <div class="section-num">09</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Evaluation Metrics · Module 3</div>
+        <h2 class="section-title">Click-Through Rate (CTR)</h2>
+        <p class="section-intro">
+          CTR measures how often users actually click on a book after seeing it. 
+          It's a direct measure of user engagement and the appeal of displayed content.
+        </p>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-accent-line pink"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+        <div>
+          <div class="metric-tag pink">CTR</div>
+          <div class="metric-name">Are users engaging with what they see?</div>
+          <div class="metric-desc">
+            Every time a book appears on the user browse page, its <code style="font-family:var(--mono);color:var(--accent)">ShowCount</code> increments. 
+            Every time a user clicks through to the book detail page or completes a purchase, its <code style="font-family:var(--mono);color:var(--accent)">ClickCount</code> and <code style="font-family:var(--mono);color:var(--accent)">DetailViews</code> increment.<br><br>
+            CTR divides total clicks by total impressions and multiplies by 100 to express as a percentage. A high CTR means users find a book's title, genre, and rating compelling enough to explore further.
+          </div>
+          <div class="formula-label">Formula</div>
+          <div class="formula-block">CTR (%) = (ClickCount + DetailViews) / ShowCount × 100</div>
+        </div>
+        <div>
+          <div class="metric-example">
+            <strong>Example:</strong><br><br>
+            "Dune" has been shown in browse results 200 times (ShowCount = 200).<br>
+            It's been clicked 40 times (ClickCount = 30, DetailViews = 10).<br><br>
+            <strong>CTR = 40 / 200 × 100 = 20%</strong><br><br>
+            20% of users who saw Dune clicked on it. The admin dashboard also shows <strong>Average CTR</strong> across all books as a platform-wide engagement indicator.
+          </div>
+          <div class="code-block" style="margin-top:20px">
+<span class="cm"># Computed per book in the admin route</span>
+click_count = (
+    book.get(<span class="str">"ClickCount"</span>, <span class="num">0</span>)
+    + book.get(<span class="str">"DetailViews"</span>, <span class="num">0</span>)
+)
+show_count = book.get(<span class="str">"ShowCount"</span>, <span class="num">1</span>)
+
+<span class="kw">if</span> show_count > <span class="num">0</span>:
+    ctr_value = (click_count / show_count) * <span class="num">100</span>
+
+book[<span class="str">"CTR"</span>] = <span class="fn">round</span>(ctr_value, <span class="num">2</span>)
+          </div>
+          <div class="callout" style="margin-top:16px">
+            <strong>Used for:</strong> The admin dashboard shows a CTR column for every book, and the top-5 highest CTR books are tracked separately. This helps identify which books are visually or topically compelling to readers — useful for curation and marketing.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DATABASE ── -->
+  <section class="doc-section" id="database">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Data Layer</div>
+        <h2 class="section-title">MongoDB Collections</h2>
+        <p class="section-intro">
+          All data is stored in a MongoDB Atlas cloud cluster called <code style="font-family:var(--mono);color:var(--green)">bookapp</code>. 
+          Seven collections form the data backbone of PageForge.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div class="db-collection">
+        <div class="db-coll-head">
+          <div class="db-coll-icon">📚</div>
+          <div class="db-coll-name">books</div>
+          <div class="db-coll-count">100 documents</div>
+        </div>
+        <div class="db-fields">
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">BookID</span><span class="db-field-desc">Unique identifier for each book (1–100)</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Title</span><span class="db-field-desc">Book title (from a curated list of 100 classic + popular titles)</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Author</span><span class="db-field-desc">Author name (generated using Faker library)</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Genre</span><span class="db-field-desc">One of 7 genres: Classics, Fiction, Science, Romance, History, Fantasy, Thriller</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Description</span><span class="db-field-desc">2-sentence generated description — key input for TF-IDF vectorization</span></div>
+          <div class="db-field"><span class="db-field-type">float</span><span class="db-field-name">Price</span><span class="db-field-desc">Random price between ₹199 and ₹499</span></div>
+          <div class="db-field"><span class="db-field-type">float</span><span class="db-field-name">RatingMean</span><span class="db-field-desc">Dynamic average rating updated on every new review submission</span></div>
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">ClickCount</span><span class="db-field-desc">Increments on every purchase — used in CTR numerator</span></div>
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">ShowCount</span><span class="db-field-desc">Increments every time the book appears in browse results — CTR denominator</span></div>
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">DetailViews</span><span class="db-field-desc">Increments on every book detail page visit — also counted in CTR</span></div>
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">StockAvailable</span><span class="db-field-desc">Current inventory level; decremented on each sale</span></div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="db-collection">
+          <div class="db-coll-head">
+            <div class="db-coll-icon">👤</div>
+            <div class="db-coll-name">users</div>
+            <div class="db-coll-count">Registered accounts</div>
+          </div>
+          <div class="db-fields">
+            <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Username</span><span class="db-field-desc">Unique login name</span></div>
+            <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Password</span><span class="db-field-desc">Plain-text password (currently no hashing)</span></div>
+            <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Role</span><span class="db-field-desc">"user" or "admin" — controls page access</span></div>
+          </div>
+        </div>
+
+        <div class="db-collection">
+          <div class="db-coll-head">
+            <div class="db-coll-icon">⚡</div>
+            <div class="db-coll-name">user_interactions</div>
+            <div class="db-coll-count">Tracking events</div>
+          </div>
+          <div class="db-fields">
+            <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Username</span><span class="db-field-desc">Who performed this action</span></div>
+            <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">BookID</span><span class="db-field-desc">Which book was interacted with</span></div>
+            <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">InteractionType</span><span class="db-field-desc">One of: "view", "cart", "review", "purchase"</span></div>
+            <div class="db-field"><span class="db-field-type">any</span><span class="db-field-name">InteractionValue</span><span class="db-field-desc">Rating value for reviews; price for purchases</span></div>
+            <div class="db-field"><span class="db-field-type">datetime</span><span class="db-field-name">Timestamp</span><span class="db-field-desc">When the interaction occurred (UTC)</span></div>
+          </div>
+        </div>
+
+        <div class="db-collection">
+          <div class="db-coll-head">
+            <div class="db-coll-icon">📦</div>
+            <div class="db-coll-name">orders</div>
+            <div class="db-coll-count">Purchase records</div>
+          </div>
+          <div class="db-fields">
+            <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Username</span><span class="db-field-desc">Who placed the order</span></div>
+            <div class="db-field"><span class="db-field-type">list</span><span class="db-field-name">Books</span><span class="db-field-desc">Embedded array of full book documents at time of purchase</span></div>
+            <div class="db-field"><span class="db-field-type">float</span><span class="db-field-name">Total</span><span class="db-field-desc">Combined price of all books in this order</span></div>
+            <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">PaymentMethod</span><span class="db-field-desc">Paytm / GPay / PhonePe / Visa / MasterCard / RuPay / COD</span></div>
+            <div class="db-field"><span class="db-field-type">datetime</span><span class="db-field-name">Date</span><span class="db-field-desc">Order timestamp — used in 30-day top seller filter</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid three" style="margin-top:20px">
+      <div class="db-collection">
+        <div class="db-coll-head">
+          <div class="db-coll-icon">⭐</div>
+          <div class="db-coll-name">reviews</div>
+        </div>
+        <div class="db-fields">
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">BookID</span><span class="db-field-desc">Which book was reviewed</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Username</span><span class="db-field-desc">Reviewer's username</span></div>
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">Rating</span><span class="db-field-desc">1–5 star score</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">ReviewText</span><span class="db-field-desc">Written review content</span></div>
+          <div class="db-field"><span class="db-field-type">datetime</span><span class="db-field-name">CreatedAt</span><span class="db-field-desc">Review submission time</span></div>
+        </div>
+      </div>
+
+      <div class="db-collection">
+        <div class="db-coll-head">
+          <div class="db-coll-icon">📈</div>
+          <div class="db-coll-name">sales</div>
+        </div>
+        <div class="db-fields">
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">BookID</span><span class="db-field-desc">Which book was sold</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Title</span><span class="db-field-desc">Book title at time of sale</span></div>
+          <div class="db-field"><span class="db-field-type">int</span><span class="db-field-name">Units</span><span class="db-field-desc">Number of copies sold in this record</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Date</span><span class="db-field-desc">Admin-entered sale date</span></div>
+        </div>
+      </div>
+
+      <div class="db-collection">
+        <div class="db-coll-head">
+          <div class="db-coll-icon">📬</div>
+          <div class="db-coll-name">contact_queries</div>
+        </div>
+        <div class="db-fields">
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Username</span><span class="db-field-desc">Submitter's username</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Email</span><span class="db-field-desc">Contact email address</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">Subject</span><span class="db-field-desc">Query subject line</span></div>
+          <div class="db-field"><span class="db-field-type">str</span><span class="db-field-name">QueryMessage</span><span class="db-field-desc">Full message body</span></div>
+          <div class="db-field"><span class="db-field-type">datetime</span><span class="db-field-name">CreatedAt</span><span class="db-field-desc">Submission timestamp</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── INTERACTION TRACKING ── -->
+  <section class="doc-section" id="interactions">
+    <div class="section-header">
+      <div class="section-num">11</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Data Layer · Behavioral Signals</div>
+        <h2 class="section-title">How Interactions Are Tracked</h2>
+        <p class="section-intro">
+          Every meaningful user action silently generates a document in the <code style="font-family:var(--mono);color:var(--green)">user_interactions</code> collection. 
+          These events form the behavioral dataset the recommendation engine learns from.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div class="card">
+        <div class="card-glow blue"></div>
+        <div class="card-icon">👁</div>
+        <div class="card-title">View Interaction</div>
+        <div class="card-body">Triggered on every visit to a book's detail page (<code style="font-family:var(--mono);color:var(--purple)">/book/&lt;id&gt;</code>). Simultaneously, the book's <code style="font-family:var(--mono);color:var(--accent)">DetailViews</code> counter increments by 1. The logged event has <code style="font-family:var(--mono);color:var(--green)">InteractionType = "view"</code> with weight 1.</div>
+      </div>
+      <div class="card">
+        <div class="card-glow yellow"></div>
+        <div class="card-icon">🛒</div>
+        <div class="card-title">Cart Interaction</div>
+        <div class="card-body">Triggered when a user clicks "Add to Cart". Only logged once per book (duplicate cart additions are prevented). The event has <code style="font-family:var(--mono);color:var(--green)">InteractionType = "cart"</code> with weight 5 — a high-intent signal showing the user considered buying.</div>
+      </div>
+      <div class="card">
+        <div class="card-glow pink"></div>
+        <div class="card-icon">⭐</div>
+        <div class="card-title">Review Interaction</div>
+        <div class="card-body">Triggered on review submission. The rating (1–5) is stored as <code style="font-family:var(--mono);color:var(--accent)">InteractionValue</code> and gets added to the base weight of 4. Simultaneously, the book's dynamic <code style="font-family:var(--mono);color:var(--accent)">RatingMean</code> is recalculated using an incremental average formula.</div>
+      </div>
+      <div class="card">
+        <div class="card-glow green"></div>
+        <div class="card-icon">💳</div>
+        <div class="card-title">Purchase Interaction</div>
+        <div class="card-body">Triggered on checkout completion, one event per book in the cart. The purchase price is stored as <code style="font-family:var(--mono);color:var(--accent)">InteractionValue</code>. Weight 8 — the strongest possible signal. Each purchased book also increments <code style="font-family:var(--mono);color:var(--accent)">ClickCount</code> for CTR tracking.</div>
+      </div>
+    </div>
+
+    <div class="callout green" style="margin-top:20px">
+      <strong>Dynamic Rating Update:</strong> When a user submits a review, the book's RatingMean doesn't just get re-averaged from scratch. Instead, an incremental formula is used:
+      <code style="font-family:var(--mono);display:block;margin-top:8px;color:var(--green)">new_mean = (current_mean × current_count + new_rating) / (current_count + 1)</code>
+      This is O(1) — no need to re-fetch all previous reviews from the database.
+    </div>
+  </section>
+
+  <!-- ── USER FLOW ── -->
+  <section class="doc-section" id="userflow">
+    <div class="section-header">
+      <div class="section-num">12</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Application Modules</div>
+        <h2 class="section-title">User-Facing Features</h2>
+        <p class="section-intro">
+          The user side of PageForge is a complete e-commerce reading experience — search, discovery, 
+          recommendations, cart, checkout, orders, reviews, and support.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid three">
+      <div class="card">
+        <div class="card-glow yellow"></div>
+        <div class="card-icon">🔐</div>
+        <div class="card-title">Auth: Register & Login</div>
+        <div class="card-body">Users register with a username + password (stored in the <code style="font-family:var(--mono);color:var(--green)">users</code> collection with <code style="font-family:var(--mono);color:var(--accent)">Role: "user"</code>). On login, Flask stores the username and role in a server-side session. Role-based access control redirects admins to the admin dashboard and users to the browse page.</div>
+      </div>
+      <div class="card">
+        <div class="card-glow blue"></div>
+        <div class="card-icon">🔍</div>
+        <div class="card-title">Search & Filter</div>
+        <div class="card-body">Users can search by title or author using MongoDB regex queries. Books can be filtered by genre (exact match from the 7 available genres) and sorted by Price (ascending) or Rating (descending). Every filtered/sorted book view increments <code style="font-family:var(--mono);color:var(--accent)">ShowCount</code>.</div>
+      </div>
+      <div class="card">
+        <div class="card-glow purple"></div>
+        <div class="card-icon">✨</div>
+        <div class="card-title">Personalized Recommendations</div>
+        <div class="card-body">Displayed at the top of the browse page in a dedicated "Recommended For You" section, labelled with an AI pill badge. These 5 books are generated fresh on every page load using the full TF-IDF + cosine + behavioral weighting pipeline.</div>
+      </div>
+      <div class="card">
+        <div class="card-glow green"></div>
+        <div class="card-icon">🛍</div>
+        <div class="card-title">Cart & Checkout</div>
+        <div class="card-body">Cart IDs are stored in the Flask session (not the database). The checkout flow collects name, address, phone, and payment method. On order placement, book documents are embedded directly into the order record, purchase interactions are logged, ClickCount increments, and cart is cleared.</div>
+      </div>
+      <div class="card">
+        <div class="card-glow pink"></div>
+        <div class="card-icon">📦</div>
+        <div class="card-title">Order History</div>
+        <div class="card-body">All past orders for the logged-in user are fetched from MongoDB, sorted by date descending. Each order card shows delivery details, payment method, list of books purchased, and total paid — a full purchase receipt.</div>
+      </div>
+      <div class="card">
+        <div class="card-glow yellow"></div>
+        <div class="card-icon">📬</div>
+        <div class="card-title">Contact & Support</div>
+        <div class="card-body">Users can submit queries via a contact form (username, email, subject, message). Submissions are saved to the <code style="font-family:var(--mono);color:var(--green)">contact_queries</code> collection. A flash message confirms submission with a 24–48 hour response expectation.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ADMIN DASHBOARD ── -->
+  <section class="doc-section" id="adminflow">
+    <div class="section-header">
+      <div class="section-num">13</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Application Modules</div>
+        <h2 class="section-title">Admin Analytics Dashboard</h2>
+        <p class="section-intro">
+          The admin dashboard is a recommendation control center showing live precision, recall, CTR, 
+          top sellers, and full inventory — all computed fresh on each page load.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div>
+        <div class="card">
+          <div class="card-glow yellow"></div>
+          <div class="card-icon">📊</div>
+          <div class="card-title">KPI Cards: Precision, Recall, Avg CTR</div>
+          <div class="card-body">
+            Three headline metrics displayed prominently at the top of the dashboard:<br><br>
+            • <strong style="color:var(--accent)">Precision@5</strong> — computed using the platform-wide most-interacted books as recommended set, and purchase history as relevant set.<br><br>
+            • <strong style="color:var(--accent2)">Recall@5</strong> — same sets, different formula denominator (total relevant vs K).<br><br>
+            • <strong style="color:var(--green)">Average CTR</strong> — mean CTR across all 100 books in the database.
+          </div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-glow blue"></div>
+          <div class="card-icon">📈</div>
+          <div class="card-title">30-Day Top Sellers Chart</div>
+          <div class="card-body">A bar chart (rendered with Chart.js) showing the 10 most-sold book titles in the last 30 days. Orders are filtered by date (<code style="font-family:var(--mono);color:var(--accent)">Date &gt;= now - 30 days</code>), titles are counted with Python's <code style="font-family:var(--mono);color:var(--purple)">Counter</code>, and the top 10 are passed to the template as label/value arrays.</div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-glow green"></div>
+          <div class="card-icon">📋</div>
+          <div class="card-title">Inventory Table</div>
+          <div class="card-body">A scrollable table showing every book in the database with its computed CTR, raw ClickCount, and ShowCount. This lets the admin identify high-engagement and low-engagement books at a glance. CTR is computed in-memory — not stored in the database.</div>
+        </div>
+        <div class="card" style="margin-top:20px">
+          <div class="card-glow pink"></div>
+          <div class="card-icon">🛠</div>
+          <div class="card-title">Stock & Sales Management</div>
+          <div class="card-body">
+            Two AJAX-powered forms in the admin sidebar:<br><br>
+            • <strong style="color:var(--text)">Update Stock</strong> — sets <code style="font-family:var(--mono);color:var(--accent)">StockAvailable</code> for a book by its ID.<br><br>
+            • <strong style="color:var(--text)">Add Sale</strong> — logs a sale record, decrements stock by the sold units, and prevents negative inventory (sale is rejected if units exceed available stock).<br><br>
+            Both use <code style="font-family:var(--mono);color:var(--purple)">fetch()</code> POST requests returning JSON, with page reload on success.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout blue" style="margin-top:20px">
+      <strong>How recommended_books are computed for admin metrics:</strong> Unlike the user-facing recommendations (which are personalized per user), the admin uses a <em>global</em> recommendation set. All user interactions are aggregated using Python's Counter with weighted sums, and the top 5 book IDs by total score become the "recommended" set for computing Precision@K and Recall@K across all users.
+    </div>
+  </section>
+
+  <!-- ── PROJECT STRUCTURE ── -->
+  <section class="doc-section" id="structure">
+    <div class="section-header">
+      <div class="section-num">14</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Codebase</div>
+        <h2 class="section-title">Project Structure</h2>
+        <p class="section-intro">
+          PageForge is organized into a clean, flat Flask project layout. Every file has a single, 
+          clear responsibility.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div class="file-tree">
+        <div class="ft-root">📁 PageForge-BDP/</div>
+        <div class="ft-indent">
+          <div class="ft-dir">📁 static/</div>
+          <div class="ft-indent2">
+            <div class="ft-dir">📁 css/</div>
+            <div class="ft-indent3"><div class="ft-file css">custom.css</div></div>
+            <div class="ft-dir">📁 js/</div>
+            <div class="ft-indent3">
+              <div class="ft-file js">admin.js</div>
+              <div class="ft-file js">user.js</div>
+            </div>
+            <div class="ft-dir">📁 images/</div>
+          </div>
+          <div class="ft-dir">📁 templates/</div>
+          <div class="ft-indent2">
+            <div class="ft-file html">base.html</div>
+            <div class="ft-file html">admin.html</div>
+            <div class="ft-file html">user.html</div>
+            <div class="ft-file html">book_detail.html</div>
+            <div class="ft-file html">cart.html</div>
+            <div class="ft-file html">checkout.html</div>
+            <div class="ft-file html">orders.html</div>
+            <div class="ft-file html">login.html</div>
+            <div class="ft-file html">register.html</div>
+            <div class="ft-file html">contact.html</div>
+          </div>
+          <div class="ft-file py">app.py</div>
+          <div class="ft-file py">metrics.py</div>
+          <div class="ft-file py">seed_books.py</div>
+          <div class="ft-file py">seed_users.py</div>
+          <div class="ft-file env">.env</div>
+          <div class="ft-file">requirements.txt</div>
+          <div class="ft-file">Procfile</div>
+          <div class="ft-file">README.md</div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="padding:20px 24px">
+          <div class="card-title" style="font-size:1rem;margin-bottom:6px">app.py</div>
+          <div class="card-body">The entire Flask application — all routes, recommendation logic, database queries, metric computations, session management, and cart handling. ~600 lines, the single source of truth for all server-side behavior.</div>
+        </div>
+        <div class="card" style="padding:20px 24px">
+          <div class="card-title" style="font-size:1rem;margin-bottom:6px">metrics.py</div>
+          <div class="card-body">Three pure Python functions: <code style="font-family:var(--mono);color:var(--purple)">precision_at_k</code>, <code style="font-family:var(--mono);color:var(--purple)">recall_at_k</code>, and <code style="font-family:var(--mono);color:var(--purple)">ctr</code>. Clean separation of evaluation logic from application logic — imported and called inside the admin route.</div>
+        </div>
+        <div class="card" style="padding:20px 24px">
+          <div class="card-title" style="font-size:1rem;margin-bottom:6px">seed_books.py / seed_users.py</div>
+          <div class="card-body">Database population scripts. <code style="font-family:var(--mono);color:var(--purple)">seed_books.py</code> uses Faker to generate 100 books with randomized prices, genres, authors, and descriptions. <code style="font-family:var(--mono);color:var(--purple)">seed_users.py</code> inserts the admin user. Run once before first launch.</div>
+        </div>
+        <div class="card" style="padding:20px 24px">
+          <div class="card-title" style="font-size:1rem;margin-bottom:6px">base.html</div>
+          <div class="card-body">The parent Jinja2 template containing the navbar, background orbs, flash message toasts, and footer. All other templates extend this via <code style="font-family:var(--mono);color:var(--accent)">&#123;% extends 'base.html' %&#125;</code> and inject their content into <code style="font-family:var(--mono);color:var(--accent)">&#123;% block content %&#125;</code>.</div>
+        </div>
+        <div class="card" style="padding:20px 24px">
+          <div class="card-title" style="font-size:1rem;margin-bottom:6px">admin.js / user.js</div>
+          <div class="card-body">Admin JS handles AJAX calls for stock updates and sale additions, with inline success/error messages. User JS handles AJAX cart submissions (no full page reload) with toast notifications and cart badge counter updates.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SECURITY ── -->
+  <section class="doc-section" id="security">
+    <div class="section-header">
+      <div class="section-num">15</div>
+      <div class="section-title-wrap">
+        <div class="section-label">Security & Configuration</div>
+        <h2 class="section-title">Security Architecture</h2>
+        <p class="section-intro">
+          PageForge's security model is appropriate for an academic/portfolio project with room for 
+          production hardening. Here's what's in place and what's not.
+        </p>
+      </div>
+    </div>
+
+    <div class="content-grid two">
+      <div>
+        <div class="card">
+          <div class="card-glow green"></div>
+          <div class="card-icon">🔒</div>
+          <div class="card-title">What's Secured</div>
+          <div class="card-body">
+            <strong style="color:var(--text)">Environment Variables:</strong> MongoDB URI and Flask SECRET_KEY are stored in a <code style="font-family:var(--mono);color:var(--accent3)">.env</code> file (not committed to source control) and loaded at runtime via python-dotenv.<br><br>
+            <strong style="color:var(--text)">Session Management:</strong> Flask uses the SECRET_KEY to cryptographically sign session cookies, preventing tampering. Sessions hold username and role — used for all route access checks.<br><br>
+            <strong style="color:var(--text)">Role-Based Access:</strong> Every admin route checks <code style="font-family:var(--mono);color:var(--purple)">session.get('role') != 'admin'</code> before proceeding. Every user route checks for the user role. Unauthorized access redirects to login.<br><br>
+            <strong style="color:var(--text)">Inventory Protection:</strong> The add_sale endpoint checks available stock before accepting a sale, preventing negative inventory via code-level validation.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-glow pink"></div>
+          <div class="card-icon">⚠️</div>
+          <div class="card-title">Areas for Improvement (Production)</div>
+          <div class="card-body">
+            <strong style="color:var(--text)">Password Hashing:</strong> Currently stored as plain text. Should use <code style="font-family:var(--mono);color:var(--accent)">werkzeug.security.generate_password_hash</code> and <code style="font-family:var(--mono);color:var(--accent)">check_password_hash</code>.<br><br>
+            <strong style="color:var(--text)">MongoDB IP Whitelisting:</strong> Atlas allows restricting connections to specific IP addresses — recommended for production to prevent unauthorized database access.<br><br>
+            <strong style="color:var(--text)">CSRF Protection:</strong> Form submissions currently lack CSRF tokens. Flask-WTF can add this protection automatically.<br><br>
+            <strong style="color:var(--text)">Input Validation:</strong> Server-side validation is basic — production would benefit from stricter sanitization of all form fields.
+          </div>
+        </div>
+
+        <div class="callout" style="margin-top:16px">
+          <strong>Deployment note:</strong> The <code style="font-family:var(--mono)">Procfile</code> contains <code style="font-family:var(--mono)">web: gunicorn app:app</code>, enabling deployment to platforms like Heroku or Render where Gunicorn serves the Flask app in a production-ready multi-worker configuration instead of Flask's built-in development server.
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Page<span>Forge</span> BDP</div>
+  <div class="footer-copy">Built by Pranav Krishna · Flask · MongoDB · Scikit-learn</div>
+  <a class="footer-link" href="https://github.com/pranavkrishna31/PageForge-BDP" target="_blank">github.com/pranavkrishna31</a>
+</footer>
+
+<script>
+  function toggleMenu() {
+    const sidebar = document.getElementById('sidebar');
+    const btn = document.getElementById('menu-btn');
+    const overlay = document.getElementById('overlay');
+    sidebar.classList.toggle('open');
+    btn.classList.toggle('open');
+    overlay.classList.toggle('visible');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('menu-btn').classList.remove('open');
+    document.getElementById('overlay').classList.remove('visible');
+  }
+
+  // Active nav link on scroll
+  const sections = document.querySelectorAll('[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

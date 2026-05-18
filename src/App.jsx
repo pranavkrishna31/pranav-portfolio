@@ -38,7 +38,7 @@ const projects = [
 
   {
     title:
-      "AI Based Book Demand Predictor — Supply Chain Management System",
+      "PageForge - AI Based Book Demand Predictor(Supply Chain Management System)",
 
     desc:
       "Analytics and machine learning based recommendation and demand prediction platform using ranking systems and evaluation metrics.",
@@ -47,11 +47,11 @@ const projects = [
 
     live: "https://pageforge-bdp.onrender.com",
 
-    architecture: "#",
+    architecture: "/aibdp/pageforge_Interview_prep.html",
 
     github: "https://github.com/pranavkrishna31/PageForge-BDP.git",
 
-    liveBadge: false,
+    liveBadge: true,
   },
 ];
   const skills = [
