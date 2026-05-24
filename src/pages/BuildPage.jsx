@@ -28,7 +28,7 @@ function BuildPage() {
     try {
 
       const response = await fetch(
-        "http://localhost:5000/build",
+        "https://pranav-portfolio-1vp5.onrender.com/build",
         {
           method: "POST",
 

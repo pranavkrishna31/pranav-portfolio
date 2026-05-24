@@ -26,7 +26,7 @@ function HirePage() {
     try {
 
       const response = await fetch(
-        "http://localhost:5000/hire",
+        "https://pranav-portfolio-1vp5.onrender.com/hire",
         {
           method: "POST",
 
