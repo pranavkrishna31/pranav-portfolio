@@ -4,6 +4,15 @@ import { motion } from "framer-motion";
 
 import { useState } from "react";
 
+import {
+  Routes,
+  Route,
+  Link,
+} from "react-router-dom";
+
+import HirePage from "./pages/HirePage";
+import BuildPage from "./pages/BuildPage";
+
 export default function App() {
 const projects = [
   {
@@ -111,6 +120,7 @@ const projects = [
     ],
   },
 ];
+
 
   const skills = [
     {
@@ -240,6 +250,55 @@ const projects = [
   useState(null);
 
 
+
+const [hireForm, setHireForm] = useState({
+  name: "",
+  company_name: "",
+  email: "",
+  role_title: "",
+  message: "",
+});
+
+const handleHireChange = (e) => {
+
+  setHireForm({
+    ...hireForm,
+    [e.target.name]: e.target.value,
+  });
+
+};
+
+const submitHireForm = async (e) => {
+
+  e.preventDefault();
+
+  try {
+
+    const response = await fetch(
+      "http://localhost:5000/hire",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify(hireForm),
+      }
+    );
+
+    const data = await response.json();
+
+    alert(data.message);
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
 const terminalData = {
 
   shopzilla: {
@@ -314,8 +373,16 @@ const terminalData = {
 };
 
 
-  return (
-    <div className="app premium-app">
+return (
+
+  <Routes>
+
+    <Route
+      path="/"
+      element={
+
+        <div className="app premium-app">
+
       <div className="noise"></div>
 
       <div className="orb orb-1"></div>
@@ -705,6 +772,111 @@ recommended_books =
         </div>
       </section>
 
+
+      {/* BUILD / HIRE */}
+
+<section className="build-section">
+
+  <div className="container-fluid">
+
+    <h2 className="section-title">
+      Opportunities
+    </h2>
+
+    <div className="build-grid">
+
+      {/* HIRE ME */}
+
+
+      <motion.div
+        className="build-card"
+        whileHover={{
+          y: -10,
+          rotateX: 4,
+          rotateY: -4,
+        }}
+      >
+
+        <div className="build-glow"></div>
+
+        <p className="build-label">
+          HIRE ME
+        </p>
+
+        <h3>
+          Backend Engineering,
+          ML Systems,
+          Full-Stack Infrastructure
+        </h3>
+
+        <p className="build-desc">
+          Available for internships,
+          full-time backend,
+          full-stack,
+          and ML engineering roles focused on scalable systems.
+        </p>
+
+<Link
+  to="/hire"
+  className="build-btn"
+  style={{
+    textDecoration: "none",
+  }}
+>
+  Hire Me
+</Link>
+
+      </motion.div>
+
+      {/* BUILD TOGETHER */}
+
+      <motion.div
+        className="build-card"
+        whileHover={{
+          y: -10,
+          rotateX: 4,
+          rotateY: 4,
+        }}
+      >
+
+        <div className="build-glow"></div>
+
+        <p className="build-label">
+          BUILD TOGETHER
+        </p>
+
+        <h3>
+          Startups,
+          Scalable Systems,
+          Engineering Experiments
+        </h3>
+
+        <p className="build-desc">
+        Interested in collaborating on
+        scalable backend systems,
+        recommendation platforms,
+        analytics-driven products,
+        or infrastructure-oriented applications.
+      </p>
+
+      <Link
+        to="/build"
+        className="build-btn secondary-build-btn"
+        style={{
+          textDecoration: "none",
+        }}
+      >
+        Let's Build
+      </Link>
+      
+      </motion.div>
+
+    </div>
+
+  </div>
+
+</section>
+
       {/* SKILLS */}
 
       <section className="skills-section">
@@ -975,6 +1147,20 @@ recommended_books =
           Kondapalli Pranav Krishna
         </p>
       </footer>
-    </div>
-  );
+        </div>
+
+      }
+    />
+
+    <Route
+      path="/hire"
+      element={<HirePage />}
+    />
+<Route
+  path="/build"
+  element={<BuildPage />}
+/>
+  </Routes>
+
+);
 }
