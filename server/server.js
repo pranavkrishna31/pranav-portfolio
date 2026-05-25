@@ -31,11 +31,12 @@ const transporter = nodemailer.createTransport({
   },
 
 });
+
 /* =========================
    VERIFY MAIL SERVER
 ========================= */
 
-transporter.verify((error, success) => {
+transporter.verify((error) => {
 
   if (error) {
 
@@ -128,7 +129,7 @@ app.post("/hire", (req, res) => {
       role_title,
       message
     ],
-    async (err, result) => {
+    (err, result) => {
 
       if (err) {
 
@@ -140,9 +141,18 @@ app.post("/hire", (req, res) => {
 
       }
 
+      /* SEND RESPONSE IMMEDIATELY */
+
+      res.status(200).json({
+        message:
+          "Hire request submitted successfully"
+      });
+
+      /* SEND EMAIL IN BACKGROUND */
+
       try {
 
-        await transporter.sendMail({
+        transporter.sendMail({
 
           from: process.env.EMAIL_USER,
 
@@ -171,22 +181,17 @@ app.post("/hire", (req, res) => {
         });
 
         console.log(
-  "MAIL SENT SUCCESSFULLY"
-);
+          "MAIL SENT SUCCESSFULLY"
+        );
 
       } catch (mailError) {
 
         console.log(
-  "MAIL ERROR:",
-  mailError
-);
+          "MAIL ERROR:",
+          mailError
+        );
 
       }
-
-      res.status(200).json({
-        message:
-          "Hire request submitted successfully"
-      });
 
     }
   );
@@ -250,7 +255,7 @@ app.post("/build", (req, res) => {
       project_type,
       message
     ],
-    async (err, result) => {
+    (err, result) => {
 
       if (err) {
 
@@ -262,14 +267,19 @@ app.post("/build", (req, res) => {
 
       }
 
-      try {
-        
-        console.log(
-  "ENTERED MAIL BLOCK"
-);
+      /* SEND RESPONSE IMMEDIATELY */
 
-        await transporter.sendMail({
-        
+      res.status(200).json({
+        message:
+          "Collaboration request submitted successfully"
+      });
+
+      /* SEND EMAIL IN BACKGROUND */
+
+      try {
+
+        transporter.sendMail({
+
           from: process.env.EMAIL_USER,
 
           to: process.env.EMAIL_USER,
@@ -297,22 +307,17 @@ app.post("/build", (req, res) => {
         });
 
         console.log(
-  "MAIL SENT SUCCESSFULLY"
-);
+          "MAIL SENT SUCCESSFULLY"
+        );
 
       } catch (mailError) {
 
-       console.log(
-  "MAIL ERROR:",
-  mailError
-);
+        console.log(
+          "MAIL ERROR:",
+          mailError
+        );
 
       }
-
-      res.status(200).json({
-        message:
-          "Collaboration request submitted successfully"
-      });
 
     }
   );
