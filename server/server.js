@@ -29,6 +29,15 @@ const transporter = nodemailer.createTransport({
     pass: process.env.BREVO_PASS,
 
   },
+  connectionTimeout: 10000,
+
+greetingTimeout: 10000,
+
+socketTimeout: 10000,
+
+tls: {
+  rejectUnauthorized: false
+},
 
 });
 
