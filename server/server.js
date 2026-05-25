@@ -24,9 +24,10 @@ const transporter = nodemailer.createTransport({
 
   auth: {
 
-user: process.env.BREVO_USER,
+    user: process.env.BREVO_USER,
 
-pass: process.env.BREVO_PASS,
+    pass: process.env.BREVO_PASS,
+
   },
 
 });
@@ -149,48 +150,51 @@ app.post("/hire", (req, res) => {
 
       /* SEND EMAIL IN BACKGROUND */
 
-      try {
+      transporter.sendMail({
 
-        transporter.sendMail({
+        from:
+          '"Pranav Portfolio" <kpranavk31@gmail.com>',
 
-from: "kpranavk31@gmail.com",
+        to:
+          "kpranavk31@gmail.com",
 
-to: "kpranavk31@gmail.com",
+        subject:
+          "New Hire Request",
 
-          subject: "New Hire Request",
+        html: `
 
-          html: `
+          <h2>New Hire Request</h2>
 
-            <h2>New Hire Request</h2>
+          <p><strong>Name:</strong> ${name}</p>
 
-            <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Company:</strong> ${company_name}</p>
 
-            <p><strong>Company:</strong> ${company_name}</p>
+          <p><strong>Email:</strong> ${email}</p>
 
-            <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Role:</strong> ${role_title}</p>
 
-            <p><strong>Role:</strong> ${role_title}</p>
+          <p><strong>Message:</strong></p>
 
-            <p><strong>Message:</strong></p>
+          <p>${message}</p>
 
-            <p>${message}</p>
+        `,
 
-          `,
-
-        });
+      })
+      .then(() => {
 
         console.log(
           "MAIL SENT SUCCESSFULLY"
         );
 
-      } catch (mailError) {
+      })
+      .catch((mailError) => {
 
         console.log(
           "MAIL ERROR:",
           mailError
         );
 
-      }
+      });
 
     }
   );
@@ -275,48 +279,51 @@ app.post("/build", (req, res) => {
 
       /* SEND EMAIL IN BACKGROUND */
 
-      try {
+      transporter.sendMail({
 
-        transporter.sendMail({
+        from:
+          '"Pranav Portfolio" <kpranavk31@gmail.com>',
 
-from: "kpranavk31@gmail.com",
+        to:
+          "kpranavk31@gmail.com",
 
-to: "kpranavk31@gmail.com",
+        subject:
+          "New Collaboration Request",
 
-          subject: "New Collaboration Request",
+        html: `
 
-          html: `
+          <h2>New Collaboration Request</h2>
 
-            <h2>New Collaboration Request</h2>
+          <p><strong>Name:</strong> ${name}</p>
 
-            <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Startup:</strong> ${startup_name}</p>
 
-            <p><strong>Startup:</strong> ${startup_name}</p>
+          <p><strong>Email:</strong> ${email}</p>
 
-            <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Project Type:</strong> ${project_type}</p>
 
-            <p><strong>Project Type:</strong> ${project_type}</p>
+          <p><strong>Message:</strong></p>
 
-            <p><strong>Message:</strong></p>
+          <p>${message}</p>
 
-            <p>${message}</p>
+        `,
 
-          `,
-
-        });
+      })
+      .then(() => {
 
         console.log(
           "MAIL SENT SUCCESSFULLY"
         );
 
-      } catch (mailError) {
+      })
+      .catch((mailError) => {
 
         console.log(
           "MAIL ERROR:",
           mailError
         );
 
-      }
+      });
 
     }
   );
