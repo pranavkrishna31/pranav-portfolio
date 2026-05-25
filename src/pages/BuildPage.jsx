@@ -113,11 +113,8 @@ if (lastSubmission) {
 
     } finally {
 
-      setTimeout(() => {
-
   setLoading(false);
 
-}, 2200);
 
     }
 
