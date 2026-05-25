@@ -16,7 +16,7 @@ app.use(express.json());
 
 const transporter = nodemailer.createTransport({
 
-  host: "smtp.gmail.com",
+  host: "smtp-relay.brevo.com",
 
   port: 587,
 
@@ -24,10 +24,9 @@ const transporter = nodemailer.createTransport({
 
   auth: {
 
-    user: process.env.EMAIL_USER,
+user: process.env.BREVO_USER,
 
-    pass: process.env.EMAIL_PASS,
-
+pass: process.env.BREVO_PASS,
   },
 
 });
@@ -154,9 +153,9 @@ app.post("/hire", (req, res) => {
 
         transporter.sendMail({
 
-          from: process.env.EMAIL_USER,
+from: "kpranavk31@gmail.com",
 
-          to: process.env.EMAIL_USER,
+to: "kpranavk31@gmail.com",
 
           subject: "New Hire Request",
 
@@ -280,9 +279,9 @@ app.post("/build", (req, res) => {
 
         transporter.sendMail({
 
-          from: process.env.EMAIL_USER,
+from: "kpranavk31@gmail.com",
 
-          to: process.env.EMAIL_USER,
+to: "kpranavk31@gmail.com",
 
           subject: "New Collaboration Request",
 
