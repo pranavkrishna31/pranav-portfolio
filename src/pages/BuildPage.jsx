@@ -1,6 +1,9 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 function BuildPage() {
+
+  const [loading, setLoading] = useState(false);
 
   const [buildForm, setBuildForm] = useState({
 
@@ -25,10 +28,51 @@ function BuildPage() {
 
     e.preventDefault();
 
+    const lastSubmission =
+  localStorage.getItem(
+    "buildCooldown"
+  );
+
+if (lastSubmission) {
+
+  const currentTime = Date.now();
+
+  const difference =
+    currentTime - Number(lastSubmission);
+
+  if (difference < 30000) {
+
+    toast.error(
+      "Please wait 30 seconds before submitting again."
+    );
+
+    return;
+
+  }
+
+}
+    if (loading) return;
+
+    if (
+      !buildForm.name ||
+      !buildForm.startup_name ||
+      !buildForm.email ||
+      !buildForm.project_type ||
+      !buildForm.message
+    ) {
+
+      toast.error("Please fill all fields.");
+      return;
+
+    }
+
+    setLoading(true);
+
     try {
 
       const response = await fetch(
         "https://pranav-portfolio-1vp5.onrender.com/build",
+        //"http://localhost:5000/build",
         {
           method: "POST",
 
@@ -42,13 +86,38 @@ function BuildPage() {
 
       const data = await response.json();
 
-      alert(data.message);
+      toast.success(data.message);
+
+      localStorage.setItem(
+  "buildCooldown",
+  Date.now()
+);
+
+      setBuildForm({
+
+        name: "",
+        startup_name: "",
+        email: "",
+        project_type: "",
+        message: "",
+
+      });
 
     } catch (error) {
 
       console.log(error);
 
-      alert("Submission failed");
+      toast.error(
+        "Something went wrong."
+      );
+
+    } finally {
+
+      setTimeout(() => {
+
+  setLoading(false);
+
+}, 2200);
 
     }
 
@@ -114,11 +183,24 @@ function BuildPage() {
             onChange={handleBuildChange}
           ></textarea>
 
-<button
+         <button
   type="submit"
-  className="build-btn"
+  className={
+    loading
+      ? "build-btn loading"
+      : "build-btn"
+  }
+  disabled={loading}
 >
-  Let's Build
+
+  <span>
+    {
+      loading
+        ? "Building..."
+        : "Let's Build"
+    }
+  </span>
+
 </button>
 
         </form>

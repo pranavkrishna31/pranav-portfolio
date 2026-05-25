@@ -4,6 +4,10 @@ import { motion } from "framer-motion";
 
 import { useState } from "react";
 
+import toast from "react-hot-toast";
+
+import { useNavigate } from "react-router-dom"; 
+
 import {
   Routes,
   Route,
@@ -289,11 +293,15 @@ const submitHireForm = async (e) => {
 
     const data = await response.json();
 
-    alert(data.message);
+toast.success(data.message);
 
   } catch (error) {
 
     console.log(error);
+
+toast.error(
+  "Something went wrong."
+);
 
   }
 
@@ -372,6 +380,24 @@ const terminalData = {
 
 };
 
+const [pageLoading, setPageLoading] =
+useState(false);
+
+const navigate = useNavigate();
+
+const handleNavigation = (path) => {
+
+  setPageLoading(true);
+
+  setTimeout(() => {
+
+    navigate(path);
+
+    setPageLoading(false);
+
+  }, 1200);
+
+};
 
 return (
 
@@ -382,7 +408,36 @@ return (
       element={
 
         <div className="app premium-app">
+{
+  pageLoading && (
 
+    <div className="global-loader">
+
+      <div className="loader-ring"></div>
+
+      <h2>
+        Initializing Experience
+      </h2>
+
+    </div>
+
+  )
+}
+          {
+  pageLoading && (
+
+    <div className="global-loader">
+
+      <div className="loader-ring"></div>
+
+      <h2>
+        Initializing Experience
+      </h2>
+
+    </div>
+
+  )
+}
       <div className="noise"></div>
 
       <div className="orb orb-1"></div>
@@ -453,15 +508,29 @@ return (
         applications.
       </p>
 
-      <div className="hero-buttons">
-        <a
-          href="/resume.pdf"
-          target="_blank"
-          className="secondary-btn"
-        >
-          View Resume
-        </a>
-      </div>
+     <button
+  className="secondary-btn"
+
+  onClick={() => {
+
+    setPageLoading(true);
+
+    setTimeout(() => {
+
+      window.open(
+        "/resume.pdf",
+        "_blank"
+      );
+
+      setPageLoading(false);
+
+    }, 1200);
+
+  }}
+>
+  View Resume
+</button>
+
     </motion.div>
 
     {/* FLOATING SHOWCASE */}
@@ -816,15 +885,15 @@ recommended_books =
           and ML engineering roles focused on scalable systems.
         </p>
 
-<Link
-  to="/hire"
+<button
   className="build-btn"
-  style={{
-    textDecoration: "none",
-  }}
+
+  onClick={() =>
+    handleNavigation("/hire")
+  }
 >
   Hire Me
-</Link>
+</button>
 
       </motion.div>
 
@@ -859,15 +928,14 @@ recommended_books =
         or infrastructure-oriented applications.
       </p>
 
-      <Link
-        to="/build"
-        className="build-btn secondary-build-btn"
-        style={{
-          textDecoration: "none",
-        }}
-      >
-        Let's Build
-      </Link>
+<button
+  className="build-btn secondary-build-btn"
+  onClick={() =>
+    handleNavigation("/build")
+  }
+>
+  Let's Build
+</button>
       
       </motion.div>
 
@@ -1079,9 +1147,23 @@ recommended_books =
       );
     }
 
-    else {
-      setTerminalOutput(null);
-    }
+else if (value === "") {
+  setTerminalOutput(null);
+}
+
+else {
+
+  setTerminalOutput({
+    title: "INVALID INPUT DETECTED",
+
+    details: [
+      "→ Invalid project selection.",
+      "→ Please enter 1, 2, or 3.",
+      "→ Accepted inputs: SHOPZILLA / AVS / PAGEFORGE."
+    ]
+  });
+
+}
   }}
 />
 

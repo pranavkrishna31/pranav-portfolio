@@ -145,9 +145,9 @@
 
   align-items: center;
 
-  transform: translateX(-12px);
-
   margin-top: 1rem;
+
+  width: 100%;
 }
 
 .primary-btn,
@@ -867,7 +867,7 @@ align-items: center;
 
   position: absolute;
 
-  top: 50%;
+  top: 38%;
 
   left: -10%;
 
@@ -1955,7 +1955,6 @@ rgba(255,140,66,0.12);
 
     left: -7% !important;
 
-    transform: rotate(-6deg) !important;
   }
 
   .code-card-2 {
@@ -1963,18 +1962,15 @@ rgba(255,140,66,0.12);
 
     right: -7% !important;
 
-    transform: rotate(6deg) !important;
   }
 
-  .code-card-3 {
-    top: 250px !important;
+.code-card-3 {
+  top: 250px !important;
 
-    left: 50% !important;
+  left: 50% !important;
 
-    transform:
-      translateX(-50%)
-      rotate(-2deg) !important;
-  }
+  margin-left: -100px;
+}
 
   /* SECTION SPACING */
 
@@ -2632,4 +2628,159 @@ rgba(255,140,66,0.12);
 
   }
 
+}
+/* ========================================
+   CINEMATIC GLOBAL PAGE LOADER
+======================================== */
+
+.global-loader {
+
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 999999;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(255,140,66,0.12),
+      #050505 70%
+    );
+
+  backdrop-filter: blur(18px);
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 2rem;
+
+  animation:
+    loaderFadeIn 0.4s ease;
+}
+
+/* SPINNING RING */
+
+.loader-ring {
+
+  position: relative;
+
+  width: 90px;
+
+  height: 90px;
+
+  border-radius: 50%;
+
+  border:
+    3px solid
+    rgba(255,255,255,0.08);
+
+  border-top:
+    3px solid #ff9b63;
+
+  animation:
+    loaderSpin 0.9s linear infinite;
+
+  box-shadow:
+    0 0 45px
+    rgba(255,140,66,0.28);
+}
+
+/* INNER GLOW */
+
+.loader-ring::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 12px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255,140,66,0.22),
+      transparent 70%
+    );
+
+  filter: blur(10px);
+}
+
+/* LOADER TEXT */
+
+.global-loader h2 {
+
+  color: white;
+
+  font-size: 0.95rem;
+
+  letter-spacing: 0.28em;
+
+  text-transform: uppercase;
+
+  opacity: 0.78;
+
+  font-weight: 600;
+
+  text-align: center;
+}
+
+/* ANIMATIONS */
+
+@keyframes loaderSpin {
+
+  0% {
+
+    transform: rotate(0deg);
+
+  }
+
+  100% {
+
+    transform: rotate(360deg);
+
+  }
+}
+
+@keyframes loaderFadeIn {
+
+  from {
+
+    opacity: 0;
+
+  }
+
+  to {
+
+    opacity: 1;
+
+  }
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+  .loader-ring {
+
+    width: 72px;
+
+    height: 72px;
+  }
+
+  .global-loader h2 {
+
+    font-size: 0.72rem;
+
+    letter-spacing: 0.18em;
+
+    padding: 0 1rem;
+  }
 }

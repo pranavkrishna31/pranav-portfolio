@@ -1,6 +1,9 @@
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 function HirePage() {
+
+  const [loading, setLoading] = useState(false);
 
   const [hireForm, setHireForm] = useState({
     name: "",
@@ -22,11 +25,53 @@ function HirePage() {
   const submitHireForm = async (e) => {
 
     e.preventDefault();
+    
+
+    const lastSubmission =
+  localStorage.getItem(
+    "hireCooldown"
+  );
+
+if (lastSubmission) {
+
+  const currentTime = Date.now();
+
+  const difference =
+    currentTime - Number(lastSubmission);
+
+  if (difference < 30000) {
+
+    toast.error(
+      "Please wait 30 seconds before submitting again."
+    );
+
+    return;
+
+  }
+
+}
+    if (loading) return;
+
+    if (
+      !hireForm.name ||
+      !hireForm.company_name ||
+      !hireForm.email ||
+      !hireForm.role_title ||
+      !hireForm.message
+    ) {
+
+      toast.error("Please fill all fields.");
+      return;
+
+    }
+
+    setLoading(true);
 
     try {
 
       const response = await fetch(
         "https://pranav-portfolio-1vp5.onrender.com/hire",
+        //"http://localhost:5000/hire",
         {
           method: "POST",
 
@@ -40,13 +85,32 @@ function HirePage() {
 
       const data = await response.json();
 
-      alert(data.message);
+      toast.success(data.message);
+
+      localStorage.setItem(
+  "hireCooldown",
+  Date.now()
+);
+
+      setHireForm({
+        name: "",
+        company_name: "",
+        email: "",
+        role_title: "",
+        message: "",
+      });
 
     } catch (error) {
 
       console.log(error);
 
-      alert("Submission failed");
+      toast.error(
+        "Something went wrong."
+      );
+
+    } finally {
+
+setLoading(false);
 
     }
 
@@ -111,10 +175,24 @@ function HirePage() {
 
 <button
   type="submit"
-  className="build-btn"
+  className={
+    loading
+      ? "build-btn loading"
+      : "build-btn"
+  }
+  disabled={loading}
 >
-  Submit
+
+  <span>
+    {
+      loading
+        ? "Submitting..."
+        : "Submit"
+    }
+  </span>
+
 </button>
+
         </form>
 
       </div>
