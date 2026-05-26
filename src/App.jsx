@@ -101,7 +101,7 @@ const projects = [
       "Analytics and machine learning based recommendation and demand prediction platform using ranking systems and evaluation metrics.",
 
     status:
-      "Architecture Coming Soon",
+      "Recommendation Engine & Analytics System",
 
     live:
       "https://pageforge-bdp.onrender.com",
