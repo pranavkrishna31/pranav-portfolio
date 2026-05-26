@@ -29,7 +29,8 @@ const projects = [
     status: "Live Project - Internship",
 
     live:
-      "https://shopzillapranavkrishna31.netlify.app/",
+      //"https://shopzillapranavkrishna31.netlify.app/",
+      "https://shopzilla-pranav.vercel.app/",
 
     architecture:
       "/shopzilla/Shopzilla_Architecture.html",
