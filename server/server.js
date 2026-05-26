@@ -1,6 +1,7 @@
 const express = require("express");
+
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+
 const db = require("./db");
 
 require("dotenv").config();
@@ -8,56 +9,8 @@ require("dotenv").config();
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
-
-/* =========================
-   MAIL TRANSPORTER
-========================= */
-
-const transporter = nodemailer.createTransport({
-
-  host: "smtp-relay.brevo.com",
-
-  port: 587,
-
-  secure: false,
-
-  auth: {
-
-    user: process.env.BREVO_USER,
-
-    pass: process.env.BREVO_PASS,
-
-  },
-  connectionTimeout: 10000,
-
-greetingTimeout: 10000,
-
-socketTimeout: 10000,
-
-tls: {
-  rejectUnauthorized: false
-},
-
-});
-
-/* =========================
-   VERIFY MAIL SERVER
-========================= */
-
-transporter.verify((error) => {
-
-  if (error) {
-
-    console.log(error);
-
-  } else {
-
-    console.log("Mail server ready");
-
-  }
-
-});
 
 /* =========================
    ROOT ROUTE
@@ -80,6 +33,90 @@ const isValidEmail = (email) => {
 };
 
 /* =========================
+   SEND EMAIL FUNCTION
+========================= */
+
+const sendMail = async (
+  subject,
+  htmlContent
+) => {
+
+  try {
+
+    const response = await fetch(
+
+      "https://api.brevo.com/v3/smtp/email",
+
+      {
+
+        method: "POST",
+
+        headers: {
+
+          "Content-Type":
+            "application/json",
+
+          "api-key":
+            process.env.BREVO_PASS,
+
+        },
+
+        body: JSON.stringify({
+
+          sender: {
+
+            name:
+              "Pranav Portfolio",
+
+            email:
+              "kpranavk31@gmail.com",
+
+          },
+
+          to: [
+
+            {
+
+              email:
+                "kpranavk31@gmail.com",
+
+            },
+
+          ],
+
+          subject,
+
+          htmlContent,
+
+        }),
+
+      }
+
+    );
+
+    const data =
+      await response.json();
+
+    console.log(
+      "MAIL SENT SUCCESSFULLY"
+    );
+
+    console.log(data);
+
+  }
+
+  catch (error) {
+
+    console.log(
+      "MAIL ERROR:",
+      error
+    );
+
+  }
+
+};
+
+/* =========================
    HIRE REQUEST API
 ========================= */
 
@@ -88,29 +125,42 @@ app.post("/hire", (req, res) => {
   console.log(req.body);
 
   let {
+
     name,
     company_name,
     email,
     role_title,
-    message
+    message,
+
   } = req.body;
 
   name = name?.trim();
-  company_name = company_name?.trim();
+
+  company_name =
+    company_name?.trim();
+
   email = email?.trim();
-  role_title = role_title?.trim();
+
+  role_title =
+    role_title?.trim();
+
   message = message?.trim();
 
   if (
+
     !name ||
     !company_name ||
     !email ||
     !role_title ||
     !message
+
   ) {
 
     return res.status(400).json({
-      message: "All fields are required"
+
+      message:
+        "All fields are required",
+
     });
 
   }
@@ -118,94 +168,84 @@ app.post("/hire", (req, res) => {
   if (!isValidEmail(email)) {
 
     return res.status(400).json({
-      message: "Invalid email format"
+
+      message:
+        "Invalid email format",
+
     });
 
   }
 
   const sql = `
+
     INSERT INTO hire_requests
+
     (name, company_name, email, role_title, message)
+
     VALUES (?, ?, ?, ?, ?)
+
   `;
 
   db.query(
+
     sql,
+
     [
       name,
       company_name,
       email,
       role_title,
-      message
+      message,
     ],
-    (err, result) => {
+
+    async (err, result) => {
 
       if (err) {
 
         console.log(err);
 
         return res.status(500).json({
-          message: "Database insert failed"
+
+          message:
+            "Database insert failed",
+
         });
 
       }
 
-      /* SEND RESPONSE IMMEDIATELY */
-
       res.status(200).json({
+
         message:
-          "Hire request submitted successfully"
-      });
-
-      /* SEND EMAIL IN BACKGROUND */
-
-      transporter.sendMail({
-
-        from:
-          '"Pranav Portfolio" <kpranavk31@gmail.com>',
-
-        to:
-          "kpranavk31@gmail.com",
-
-        subject:
-          "New Hire Request",
-
-        html: `
-
-          <h2>New Hire Request</h2>
-
-          <p><strong>Name:</strong> ${name}</p>
-
-          <p><strong>Company:</strong> ${company_name}</p>
-
-          <p><strong>Email:</strong> ${email}</p>
-
-          <p><strong>Role:</strong> ${role_title}</p>
-
-          <p><strong>Message:</strong></p>
-
-          <p>${message}</p>
-
-        `,
-
-      })
-      .then(() => {
-
-        console.log(
-          "MAIL SENT SUCCESSFULLY"
-        );
-
-      })
-      .catch((mailError) => {
-
-        console.log(
-          "MAIL ERROR:",
-          mailError
-        );
+          "Hire request submitted successfully",
 
       });
+
+      await sendMail(
+
+        "New Hire Request",
+
+        `
+
+        <h2>New Hire Request</h2>
+
+        <p><strong>Name:</strong> ${name}</p>
+
+        <p><strong>Company:</strong> ${company_name}</p>
+
+        <p><strong>Email:</strong> ${email}</p>
+
+        <p><strong>Role:</strong> ${role_title}</p>
+
+        <p><strong>Message:</strong></p>
+
+        <p>${message}</p>
+
+        `
+
+      );
 
     }
+
   );
 
 });
@@ -217,29 +257,42 @@ app.post("/hire", (req, res) => {
 app.post("/build", (req, res) => {
 
   let {
+
     name,
     startup_name,
     email,
     project_type,
-    message
+    message,
+
   } = req.body;
 
   name = name?.trim();
-  startup_name = startup_name?.trim();
+
+  startup_name =
+    startup_name?.trim();
+
   email = email?.trim();
-  project_type = project_type?.trim();
+
+  project_type =
+    project_type?.trim();
+
   message = message?.trim();
 
   if (
+
     !name ||
     !startup_name ||
     !email ||
     !project_type ||
     !message
+
   ) {
 
     return res.status(400).json({
-      message: "All fields are required"
+
+      message:
+        "All fields are required",
+
     });
 
   }
@@ -247,99 +300,90 @@ app.post("/build", (req, res) => {
   if (!isValidEmail(email)) {
 
     return res.status(400).json({
-      message: "Invalid email format"
+
+      message:
+        "Invalid email format",
+
     });
 
   }
 
   const sql = `
+
     INSERT INTO collaborations
+
     (name, startup_name, email, project_type, message)
+
     VALUES (?, ?, ?, ?, ?)
+
   `;
 
   db.query(
+
     sql,
+
     [
       name,
       startup_name,
       email,
       project_type,
-      message
+      message,
     ],
-    (err, result) => {
+
+    async (err, result) => {
 
       if (err) {
 
         console.log(err);
 
         return res.status(500).json({
-          message: "Database insert failed"
+
+          message:
+            "Database insert failed",
+
         });
 
       }
 
-      /* SEND RESPONSE IMMEDIATELY */
-
       res.status(200).json({
+
         message:
-          "Collaboration request submitted successfully"
-      });
-
-      /* SEND EMAIL IN BACKGROUND */
-
-      transporter.sendMail({
-
-        from:
-          '"Pranav Portfolio" <kpranavk31@gmail.com>',
-
-        to:
-          "kpranavk31@gmail.com",
-
-        subject:
-          "New Collaboration Request",
-
-        html: `
-
-          <h2>New Collaboration Request</h2>
-
-          <p><strong>Name:</strong> ${name}</p>
-
-          <p><strong>Startup:</strong> ${startup_name}</p>
-
-          <p><strong>Email:</strong> ${email}</p>
-
-          <p><strong>Project Type:</strong> ${project_type}</p>
-
-          <p><strong>Message:</strong></p>
-
-          <p>${message}</p>
-
-        `,
-
-      })
-      .then(() => {
-
-        console.log(
-          "MAIL SENT SUCCESSFULLY"
-        );
-
-      })
-      .catch((mailError) => {
-
-        console.log(
-          "MAIL ERROR:",
-          mailError
-        );
+          "Collaboration request submitted successfully",
 
       });
+
+      await sendMail(
+
+        "New Collaboration Request",
+
+        `
+
+        <h2>New Collaboration Request</h2>
+
+        <p><strong>Name:</strong> ${name}</p>
+
+        <p><strong>Startup:</strong> ${startup_name}</p>
+
+        <p><strong>Email:</strong> ${email}</p>
+
+        <p><strong>Project Type:</strong> ${project_type}</p>
+
+        <p><strong>Message:</strong></p>
+
+        <p>${message}</p>
+
+        `
+
+      );
 
     }
+
   );
 
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT =
+  process.env.PORT || 5000;
 
 app.listen(PORT, () => {
 
